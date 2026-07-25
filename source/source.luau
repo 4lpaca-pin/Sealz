@@ -14,7 +14,7 @@ local LibraryConfig = _G.SealzConfig or Args[1] or {
 	SignalLibrary = {
 		Type = "Url",
 		Data = "https://raw.githubusercontent.com/4lpaca-pin/Sealz/refs/heads/main/source/signal.luau",
-		Name = "Signal.luau",
+		Name = "signal.luau",
 	},
 	Fonts = {
 		Primary = Enum.Font.RobotoMono,
@@ -60,7 +60,7 @@ if LibraryConfig.SignalLibrary then
 	end;
 else
 	SignalPath = "https://raw.githubusercontent.com/4lpaca-pin/Sealz/refs/heads/main/source/signal.luau";
-	SignalName = "Signal.luau";
+	SignalName = "signal.luau";
 end
 
 -- Tween Info
@@ -99,7 +99,7 @@ Sealz.import = function(url: string , module: string)
 			return loadstring(url)();	
 		end;
 		
-		return game:HttpGet(url);
+		return loadstring(game:HttpGet(url))();
 	end)
 	
 	return (a and b) or require(script:FindFirstChild(module));
