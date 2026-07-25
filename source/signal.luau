@@ -76,12 +76,16 @@ export type Signal<Parameters...> = {
 		-- Yields the calling thread until the next fire.
 		function(signal: Signal<Parameters...>): Parameters... end
 	),
-	
+	Get: typeof(
+		-- Get value of current signal.
+		function(signal: Signal<Parameters...>): Parameters... end
+	),
+
 	Fire: typeof(
 		-- Runs all connected functions and resumes all waiting threads.
 		function(signal: Signal<Parameters...>, ...: Parameters...) end
 	),
-	
+
 	DisconnectAll: typeof(
 		-- Erases all connections.
 		-- <strong>Much faster than calling <code>Disconnect</code> on each.</strong>
@@ -108,7 +112,7 @@ type CreateSignal = typeof(
 )
 
 -- Spawn function.
-local spawnThread = if script:GetAttribute("Deferred") then task.defer else task.spawn
+local spawnThread = task.spawn;
 
 -- Setup reusable callback threads.
 local threads = {}
@@ -127,10 +131,10 @@ end
 local function disconnect(connection)
 	-- Verify connection.
 	if not connection.Connected then return end
-	
+
 	-- Remove connection.
 	connection.Connected = nil
-	
+
 	local signal = connection.Signal
 	local previous = connection.Previous
 	local next = connection.Next
@@ -153,18 +157,18 @@ Signal.__index = Signal
 Signal.Connect = function(signal, callback)
 	-- Linked list head.
 	local head = signal.Head
-	
+
 	-- Create connection.
 	local connection = {
 		Signal = signal,
 		Previous = head,
-		
+
 		Callback = callback,
-		
+
 		Connected = true,
 		Disconnect = disconnect
 	}
-	
+
 	-- Add connection.
 	if head then
 		head.Next = connection
@@ -172,27 +176,27 @@ Signal.Connect = function(signal, callback)
 		signal.Tail = connection
 	end
 	signal.Head = connection
-	
+
 	-- Return connection.
 	return connection
 end
 Signal.Once = function(signal, callback)
 	-- Linked list head.
 	local head = signal.Head
-	
+
 	-- Create connection.
 	local connection
 	connection = {
 		Signal = signal,
 		Previous = head,
-		
+
 		Callback = function(...)
 			-- Verify connection.
 			if not connection.Connected then return end
-			
+
 			-- Remove connection.
 			connection.Connected = false
-			
+
 			local previous = connection.Previous
 			local next = connection.Next
 			if previous then
@@ -205,15 +209,15 @@ Signal.Once = function(signal, callback)
 			else
 				signal.Head = previous
 			end
-			
+
 			-- Fire callback.
 			callback(...)
 		end,
-		
+
 		Connected = true,
 		Disconnect = disconnect
 	}
-	
+
 	-- Add connection.
 	if head then
 		head.Next = connection
@@ -221,26 +225,26 @@ Signal.Once = function(signal, callback)
 		signal.Tail = connection
 	end
 	signal.Head = connection
-	
+
 	-- Return connection.
 	return connection
 end
 Signal.Wait = function(signal)
 	-- Save this thread to resume later.
 	local thread = coroutine.running()
-	
+
 	-- Linked list head.
 	local head = signal.Head
-	
+
 	-- Create connection.
 	local connection
 	connection = {
 		Previous = head,
-		
+
 		Callback = function(...)
 			-- Remove connection.
 			connection.Connected = false
-			
+
 			local previous = connection.Previous
 			local next = connection.Next
 			if previous then
@@ -253,14 +257,14 @@ Signal.Wait = function(signal)
 			else
 				signal.Head = previous
 			end
-			
+
 			-- Resume the thread.
 			if coroutine.status(thread) == "suspended" then -- To avoid creating new threads.
 				task.spawn(thread, ...)
 			end
 		end
 	}
-	
+
 	-- Add connection.
 	if head then
 		head.Next = connection
@@ -268,13 +272,16 @@ Signal.Wait = function(signal)
 		signal.Tail = connection
 	end
 	signal.Head = connection
-	
+
 	-- Yield until the next fire, then return the arguments on resume.
 	return coroutine.yield()
 end
 
 Signal.Fire = function(signal, ...)
 	local connection = signal.Tail -- Start from the tail (back) of the list.
+	
+	signal.Value = ...;
+
 	while connection do
 		-- Find or create a thread, then run the callback in it.
 		local length = #threads
@@ -290,6 +297,10 @@ Signal.Fire = function(signal, ...)
 		-- Traverse.
 		connection = connection.Next
 	end
+end
+
+Signal.Get = function(signal, ...)
+	return signal.Value;
 end
 
 Signal.DisconnectAll = function(signal)
@@ -309,6 +320,11 @@ Signal.DisconnectAll = function(signal)
 	signal.Tail = nil
 	signal.Head = nil
 end
+
+Signal.Toggle = function(signal)
+	return signal:Fire(not signal.Value);
+end;
+
 Signal.Destroy = function(signal)
 	-- Remove all connections.
 	local connection = signal.Tail
@@ -325,12 +341,14 @@ Signal.Destroy = function(signal)
 	-- Remove signal's references.
 	signal.Tail = nil
 	signal.Head = nil
-	
+
 	-- Unlink signal methods.
 	setmetatable(signal, nil)
 end
 
 -- Signal creation function.
-return function()
-	return setmetatable({}, Signal) -- New blank table linked to the signal methods.
+return function(default)
+	local signal_self = setmetatable({}, Signal);
+	signal_self.Value = default;
+	return signal_self -- New blank table linked to the signal methods.
 end :: CreateSignal
