@@ -39,4 +39,4 @@ local Sealz = loadstring(game:HttpGet("https://raw.githubusercontent.com/4lpaca-
 
 ### Getting Started
 - [**Document**](https://github.com/4lpaca-pin/Sealz/blob/main/docs/doc.md)
-- [**Example**](https://github.com/4lpaca-pin/Sealz/blob/main/docs/example.md)
+- [**Example**](https://github.com/4lpaca-pin/Sealz/blob/main/docs/example.luau)
