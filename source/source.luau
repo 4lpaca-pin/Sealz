@@ -2,6 +2,7 @@
 		Sealz.UI
 	Author: 4lpaca
 	License: MIT
+	Github: https://github.com/4lpaca-pin/Sealz
 ]]
 
 local Args = {...};
