@@ -31,7 +31,12 @@ local Sealz = loadstring(game:HttpGet("https://raw.githubusercontent.com/4lpaca-
     Second = Enum.Font.RobotoMono
   },
 
+
   -- Accent Color of UI
   AccentColor = Color3.fromRGB(255, 94, 97)
 });
 ```
+
+### Getting Started
+- [**Document**](https://github.com/4lpaca-pin/Sealz/blob/main/docs/doc.md)
+- [**Example**](https://github.com/4lpaca-pin/Sealz/blob/main/docs/example.md)
