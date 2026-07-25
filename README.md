@@ -1,5 +1,6 @@
 # Sealz.UI
-Sealz Roblox Interface
+Interface Suit for Roblox. Ultrasmooth, Mobile Friendly.
+
 
 <img width="434" height="328" alt="image" src="https://github.com/user-attachments/assets/22061604-01b9-4e31-991c-ae83d3c773d4" />
 
