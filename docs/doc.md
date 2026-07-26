@@ -382,6 +382,15 @@ Section:AddImage({
 	Size = 150,
 });
 ```
+Set new image
+```lua
+Image:SetImage(<String>)
+```
+Set new size
+```lua
+Audio:SetSize(<Number>)
+```
+
 | Arguments | Description | Type |
 | --- | --- | -- |
 | Image | image id | String |
@@ -398,14 +407,6 @@ local Tool = Window:AddTool("gear")
 Everything like section.
 ```lua
 Tool:AddLabel(...)......
-```
-Set new image
-```lua
-Image:SetImage(<String>)
-```
-Set new size
-```lua
-Audio:SetSize(<Number>)
 ```
 
 # Config
