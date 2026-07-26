@@ -3112,6 +3112,8 @@ function Sealz:EncodeData(data)
 		end;
 		
 		warn('invalid enum type')
+	elseif typeof(data) == "nil" then
+		return nil;
 	else
 		warn(data);
 		error("Invalid Data "..debug.traceback());
