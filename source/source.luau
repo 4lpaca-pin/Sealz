@@ -1631,7 +1631,7 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		Circle.Name = "Circle"
 		Circle.Parent = ToggleInput
 		Circle.AnchorPoint = Vector2.new(0.5, 0.5)
-		Circle.BackgroundColor3 = Color3.fromRGB(41, 41, 41)
+		Circle.BackgroundColor3 = Sealz.AccentColor
 		Circle.BackgroundTransparency = 0.500
 		Circle.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		Circle.BorderSizePixel = 0
@@ -1669,7 +1669,7 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 				Sealz:Tween(Circle , BasedTween , {
 					BackgroundTransparency = 0.5,
 					Position = UDim2.fromScale(0.275,0.5),
-					BackgroundColor3 = Color3.fromRGB(59, 59, 59)
+					BackgroundColor3 = Color3.fromRGB(41, 41, 41)
 				})
 				
 				Sealz:Tween(ToggleInput , BasedTween , {
@@ -3945,6 +3945,7 @@ function Sealz.Indicator()
 	
 	Indicator.new = function(icon: string,name: string,color: Color3 | string)
 		
+		local Layout = #IndicatorFrame:GetChildren() + 1
 		local TransManager = Sealz.Transparent();
 		local IndicatorItem = Instance.new("Frame")
 		local UICorner = Instance.new("UICorner")
@@ -3963,6 +3964,7 @@ function Sealz.Indicator()
 		IndicatorItem.Size = UDim2.new(0, 0, 0, 35)
 		IndicatorItem.ClipsDescendants = true;
 		IndicatorItem.ZIndex = -4
+		IndicatorFrame.LayoutOrder = Layout;
 		
 		TransManager:Add(IndicatorItem)
 
@@ -4198,6 +4200,7 @@ function Sealz.Watermark(Position: string)
 	function WatermarkSelf.new(IconStr: string,TextStr: string)
 		local WatermarkItemSelf = {};
 		
+		local Layout = #WatermarkFrame:GetChildren() + 1;
 		local Block = Instance.new("Frame")
 		local Icon = Instance.new("TextLabel")
 		local Text = Instance.new("TextLabel")
@@ -4210,6 +4213,7 @@ function Sealz.Watermark(Position: string)
 		Block.BorderSizePixel = 0
 		Block.Size = UDim2.new(0, 0, 0, 15)
 		Block.ZIndex = BasedWatermarkLayer + 1
+		Block.LayoutOrder = Layout
 
 		Icon.Name = "Icon"
 		Icon.Parent = Block
@@ -4263,8 +4267,8 @@ function Sealz.Watermark(Position: string)
 			WatermarkItemSelf.Update();
 		end;
 
-		function WatermarkItemSelf:Render(bool)
-			Block.Visible = bool
+		function WatermarkItemSelf:Render(bool: Boolean)
+			Block.Visible = bool;
 		end;
 		
 		WatermarkItemSelf.Update();
