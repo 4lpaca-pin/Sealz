@@ -4197,13 +4197,16 @@ function Sealz.Watermark(Position: string)
 	
 	WatermarkSelf:SetPosition(Position)
 	
+	local CurrentLayout = 1;
 	function WatermarkSelf.new(IconStr: string,TextStr: string)
 		local WatermarkItemSelf = {};
 		
-		local Layout = #WatermarkFrame:GetChildren() + 1;
+		local Layout = CurrentLayout;
 		local Block = Instance.new("Frame")
 		local Icon = Instance.new("TextLabel")
 		local Text = Instance.new("TextLabel")
+
+		CurrentLayout += 1;
 
 		Block.Name = "Block"
 		Block.Parent = WatermarkFrame
@@ -4277,9 +4280,12 @@ function Sealz.Watermark(Position: string)
 	end;
 	
 	function WatermarkSelf:AddButton(Name: string ,Callback: ()->any)
+		local CurrentLayoutrd = CurrentLayout;
 		local Button = Instance.new("Frame")
 		local Text = Instance.new("TextLabel")
 		local UICorner = Instance.new("UICorner")
+
+		CurrentLayout += 1;
 
 		Button.Name = "Button"
 		Button.Active = true;
@@ -4290,6 +4296,8 @@ function Sealz.Watermark(Position: string)
 		Button.BorderSizePixel = 0
 		Button.Size = UDim2.new(0, 80, 0, 15)
 		Button.ZIndex = BasedWatermarkLayer + 1
+		Button.LayoutOrder = CurrentLayoutrd;
+
 		TransManager:Add(Button)
 
 		Text.Name = "Text"
