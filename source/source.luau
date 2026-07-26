@@ -1655,7 +1655,8 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 			if ToggleSelf.Value then
 				Sealz:Tween(Circle , BasedTween , {
 					BackgroundTransparency = 0.25,
-					Position = UDim2.fromScale(0.725,0.5)
+					Position = UDim2.fromScale(0.725,0.5),
+					BackgroundColor3 = Sealz.AccentColor
 				})
 				
 				Sealz:Tween(ToggleInput , BasedTween , {
@@ -1667,7 +1668,8 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 				
 				Sealz:Tween(Circle , BasedTween , {
 					BackgroundTransparency = 0.5,
-					Position = UDim2.fromScale(0.275,0.5)
+					Position = UDim2.fromScale(0.275,0.5),
+					BackgroundColor3 = Color3.fromRGB(41, 41, 41)
 				})
 				
 				Sealz:Tween(ToggleInput , BasedTween , {
