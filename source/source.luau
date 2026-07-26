@@ -25,10 +25,10 @@ local DefaultConfig = {
 
 local LibraryConfig = _G.SealzConfig or Args[1] or DefaultConfig;
 
-LibraryConfig.AccentColor = DefaultConfig.AccentColor;
-LibraryConfig.Fonts = DefaultConfig.Fonts;
-LibraryConfig.SignalLibrary = DefaultConfig.SignalLibrary;
-LibraryConfig.Icons = DefaultConfig.Icons;
+LibraryConfig.AccentColor = LibraryConfig.AccentColor or DefaultConfig.AccentColor;
+LibraryConfig.Fonts = LibraryConfig.Fonts or DefaultConfig.Fonts;
+LibraryConfig.SignalLibrary = LibraryConfig.SignalLibrary or DefaultConfig.SignalLibrary;
+LibraryConfig.Icons = LibraryConfig.Icons or DefaultConfig.Icons;
 
 -- Load File System (Studio Only)
 if game:GetService('RunService'):IsStudio() and script and script:WaitForChild('Environment') then
