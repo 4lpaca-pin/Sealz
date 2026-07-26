@@ -88,8 +88,13 @@ Sealz.Sizes = {
 	Large = UDim2.fromOffset(800 , 600),
 };
 
-Sealz.Font = LibraryConfig.Fonts.Primary or Enum.Font.GothamBold;
-Sealz.SecondFont =LibraryConfig.Fonts.Second or Enum.Font.GothamMedium;
+if LibraryConfig.Fonts then
+	Sealz.Font = LibraryConfig.Fonts.Primary or Enum.Font.GothamBold;
+	Sealz.SecondFont = LibraryConfig.Fonts.Second or Enum.Font.GothamMedium;
+else
+	Sealz.Font = DefaultConfig.Fonts.Primary or Enum.Font.GothamBold;
+	Sealz.SecondFont = DefaultConfig.Fonts.Second or Enum.Font.GothamMedium;
+end;
 
 Sealz.cloneref = cloneref or function(f) return f end;
 Sealz.get_service = function(name: string): ServiceProvider
