@@ -1631,7 +1631,7 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		Circle.Name = "Circle"
 		Circle.Parent = ToggleInput
 		Circle.AnchorPoint = Vector2.new(0.5, 0.5)
-		Circle.BackgroundColor3 = Sealz.AccentColor
+		Circle.BackgroundColor3 = Color3.fromRGB(41, 41, 41)
 		Circle.BackgroundTransparency = 0.500
 		Circle.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		Circle.BorderSizePixel = 0
@@ -1669,7 +1669,7 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 				Sealz:Tween(Circle , BasedTween , {
 					BackgroundTransparency = 0.5,
 					Position = UDim2.fromScale(0.275,0.5),
-					BackgroundColor3 = Color3.fromRGB(41, 41, 41)
+					BackgroundColor3 = Color3.fromRGB(59, 59, 59)
 				})
 				
 				Sealz:Tween(ToggleInput , BasedTween , {
@@ -4261,7 +4261,11 @@ function Sealz.Watermark(Position: string)
 			Text.Text = str;
 
 			WatermarkItemSelf.Update();
-		end
+		end;
+
+		function WatermarkItemSelf:Render(bool)
+			Block.Visible = bool
+		end;
 		
 		WatermarkItemSelf.Update();
 		
