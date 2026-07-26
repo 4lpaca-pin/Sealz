@@ -3113,7 +3113,10 @@ function Sealz:EncodeData(data)
 		
 		warn('invalid enum type')
 	elseif typeof(data) == "nil" then
-		return nil;
+		return {
+			a = "Nil",
+			b = nil,
+		};
 	else
 		warn(data);
 		error("Invalid Data "..debug.traceback());
@@ -3121,7 +3124,7 @@ function Sealz:EncodeData(data)
 end;
 
 function Sealz:DecodeData(data)
-	if data.a == "Number" or data.a == "String" or data.a == "Boolean" or data.a == "Table" then
+	if data.a == "Number" or data.a == "String" or data.a == "Boolean" or data.a == "Table" or data.a == "Nil" then
 		return data.b
 	elseif data.a == "Color" then
 		return Color3.new(data.b[1],data.b[2],data.b[3])
