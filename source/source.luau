@@ -307,6 +307,7 @@ function Sealz:AddBlurring(Frame , Signal)
 	local BlockMesh = Instance.new("BlockMesh");
 
 	BlockMesh.Parent = Part;
+	BlockMesh.Name = "dx"
 
 	Part.Material = Enum.Material.Glass;
 	Part.Transparency = 1;
@@ -318,6 +319,11 @@ function Sealz:AddBlurring(Frame , Signal)
 	Part.CollisionGroup = Sealz.RandomString();
 	Part.Size = Vector3.new(1, 1, 1) * 0.01;
 	Part.Color = Color3.fromRGB(0,0,0);
+
+	local generate_new_part = function()
+		Part = Part:Clone()
+		BlockMesh = Instance.new("BlockMesh",Part);
+	end;
 
 	DepthOfField.Enabled = true;
 	DepthOfField.FarIntensity = 0;
@@ -344,7 +350,13 @@ function Sealz:AddBlurring(Frame , Signal)
 				Size = Vector3.new(1, 1, 1) * 0.01;
 			})
 
-			Part.Parent = Sealz.BlurringHandle;
+			local status = pcall(function()
+				Part.Parent = Sealz.BlurringHandle;
+			end);
+
+			if not status then
+				generate_debug_prt();
+			end;
 		else
 			Sealz:Tween(DepthOfField,TweenInfo.new(0.1),{
 				NearIntensity = 0
