@@ -14,13 +14,13 @@ local DefaultConfig = {
 	SignalLibrary = {
 		Type = "Url",
 		Data = "https://raw.githubusercontent.com/4lpaca-pin/Sealz/refs/heads/main/source/signal.luau",
-		Name = "signal.luau",
+		Name = "Signal.luau",
 	},
 	Fonts = {
 		Primary = Enum.Font.RobotoMono,
 		Second = Enum.Font.RobotoMono
 	},
-	AccentColor = Color3.fromRGB(255, 94, 97)
+	AccentColor = Color3.fromRGB(255, 94, 97),
 };
 
 local LibraryConfig = _G.SealzConfig or Args[1] or DefaultConfig;
@@ -44,7 +44,7 @@ local IconsPath, SignalPath , SignalName;
 if LibraryConfig.Icons then
 	-- Custom Icons
 	local cfg = LibraryConfig.Icons;
-	
+
 	if cfg.Type == "Asset" then
 		IconsPath = cfg.Data;
 	end;
@@ -55,9 +55,9 @@ end;
 
 if LibraryConfig.SignalLibrary then
 	local cfg = LibraryConfig.SignalLibrary;
-	
+
 	SignalName = cfg.Name;
-	
+
 	if cfg.Type == "Url" then
 		SignalPath = cfg.Data
 	elseif cfg.Type == "Source" then
@@ -67,7 +67,7 @@ if LibraryConfig.SignalLibrary then
 	end;
 else
 	SignalPath = "https://raw.githubusercontent.com/4lpaca-pin/Sealz/refs/heads/main/source/signal.luau";
-	SignalName = "signal.luau";
+	SignalName = "Signal.luau";
 end
 
 -- Tween Info
@@ -79,7 +79,7 @@ local ScaleTween = TweenInfo.new(0.5,Enum.EasingStyle.Quint);
 -- Library
 local Sealz = {
 	Icons = Font.new(IconsPath,Enum.FontWeight.Bold,Enum.FontStyle.Normal),
-	Verion = "1.0.0"
+	Version = "1.0.1"
 };
 
 Sealz.Sizes = {
@@ -101,7 +101,7 @@ Sealz.get_service = function(name: string): ServiceProvider
 	local n,nm = pcall(function()
 		return game.GetService(game, name);
 	end);
-	
+
 	return (n and nm) or game.FindFirstChild(game, name);
 end;
 
@@ -110,7 +110,7 @@ Sealz.import = function(url: string , module: string)
 		if string.sub(url,1,3) ~= "htt" then
 			return loadstring(url)();	
 		end;
-		
+
 		return loadstring(game:HttpGet(url))();
 	end)
 	
@@ -154,19 +154,25 @@ end;
 
 Sealz.IsMobile = UserInputService.TouchEnabled;
 
+function Sealz:GetTimeString(a)
+	local OsTime = os.date("*t",a);
+	
+	return string.format("%d:%d:%d",OsTime.hour,OsTime.min,OsTime.sec)
+end;
+
 function Sealz:AddFlag(name: string, data)
 	if not name then
 		return;
 	end;
-	
+
 	assert(not Sealz.Flags[name],"same flag cannot be use.");
-	
+
 	Sealz.Flags[name] = data;
 end;
 
 Sealz.Base64 = {} do
 	local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-	
+
 	Sealz.Base64.Encode = function(data)
 		return ((data:gsub('.', function(x) 
 			local r,b='',x:byte()
@@ -179,7 +185,7 @@ Sealz.Base64 = {} do
 			return b:sub(c+1,c+1)
 		end)..({ '', '==', '=' })[#data%3+1])
 	end;
-	
+
 	Sealz.Base64.Decode = function(data)
 		data = string.gsub(data, '[^'..b..'=]', '')
 		return (data:gsub('.', function(x)
@@ -229,9 +235,9 @@ end;
 
 function Sealz:Tween(UI: Frame , Info: TweenInfo , Property: {[string]:any})
 	local Tween = TweenService:Create(UI , Info or BasedTween , Property);
-	
+
 	Tween:Play();
-	
+
 	return Tween;
 end;
 
@@ -240,14 +246,14 @@ function Sealz:AddDrag(InputFrame: Frame, MoveFrame: Frame, Speed : number)
 	local dragStart: Vector3 = nil;
 	local startPos: UDim2 = nil;
 	local Tween = TweenInfo.new(Speed);
-	
+
 	local updateInput = function(input)
 		local CurrentScreenSize = Vector2.new(CurrentCamera.ViewportSize.X,CurrentCamera.ViewportSize.Y);
 
 		local delta = input.Position - dragStart;
 		local position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
 			startPos.Y.Scale, startPos.Y.Offset + delta.Y);
-		
+
 		Sealz:Tween(MoveFrame,Tween,{
 			Position = position
 		});
@@ -347,7 +353,7 @@ function Sealz:AddBlurring(Frame , Signal)
 	Part.Name = Sealz.RandomString();
 
 	local disconnect;
-	
+
 	local UpdateFunction = function()
 		local IsWindowActive = Signal:Get();
 
@@ -380,7 +386,7 @@ function Sealz:AddBlurring(Frame , Signal)
 			})
 
 			Part.Parent = nil;
-			
+
 			return;
 		end;
 
@@ -438,16 +444,16 @@ end;
 
 function Sealz:AddVisibleSignal(UI: Frame , Property: string , Trigger: number , HideParent: boolean , OriginalParent: Object)
 	local Ps = UI.Parent or OriginalParent;
-	
+
 	Trigger = Trigger or 0.95;
-	
+
 	return UI:GetPropertyChangedSignal(Property):Connect(function()
 		if UI[Property] < Trigger then
 			UI.Visible = true;
 			UI.Parent = Ps;
 		else
 			UI.Visible = false;
-			
+
 			if HideParent then
 				UI.Parent = nil
 			end
@@ -459,9 +465,9 @@ function Sealz:SET_SCROLLING(UI: ScrollingFrame,LIST: UIListLayout)
 	local Callback = function()
 		UI.CanvasSize = UDim2.fromOffset(0,LIST.AbsoluteContentSize.Y)
 	end;
-	
+
 	Callback();
-	
+
 	return LIST:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(Callback);
 end;
 
@@ -478,7 +484,7 @@ end;
 function Sealz:AddHoverSignal(UI: Frame , Property: string , Trigger: any , Default: any , MainObject: Object)
 	Default = Default or UI[Property];
 	UI = MainObject or UI;
-	
+
 	return {
 		Down = UI.MouseEnter:Connect(function()
 			Sealz:Tween(UI,BasedTween,{[Property] = Trigger})
@@ -503,33 +509,33 @@ Sealz.Properties = {
 
 function Sealz.Transparent()
 	local items = {};
-	
+
 	items._c = {};
-	
+
 	function items:Add(Item: Frame , org: {[string]: number})
 		local props = Sealz.Properties[Item.ClassName];
-		
+
 		local defaults,off = {},{} for i,v in next , props do
 			defaults[v] = (org and org[v]) or Item[v];
 			off[v] = 1;
 		end;
-		
+
 		local index = #items._c + 1;
-		
+
 		table.insert(items._c , {
 			a = Item,
 			b = defaults,
 			c = off,
 		});
-		
+
 		return function(prop: string, new_value: number)
 			items._c[index].b[prop] = new_value;
 		end;
 	end;
-	
+
 	function items:Fire(bool: boolean,Instant: boolean)
 		local Tween = (Instant and InstantTween) or BasedTween;
-		
+
 		if bool then
 			for i,v in next , items._c do
 				Sealz:Tween(v.a,Tween,v.b);
@@ -540,7 +546,7 @@ function Sealz.Transparent()
 			end;
 		end;
 	end;
-	
+
 	return items;
 end;
 
@@ -585,7 +591,7 @@ Sealz.KeyCodeReplace = {
 
 function Sealz:GetKeyName(Key: Enum.KeyCode): string
 	Key = Key or "None";
-	
+
 	if typeof(Key) == "EnumItem" and Key.EnumType == Enum.UserInputType then
 		if Key == Enum.UserInputType.MouseButton1 then
 			return "Mouse 1"
@@ -593,11 +599,11 @@ function Sealz:GetKeyName(Key: Enum.KeyCode): string
 			return "Mouse 2"
 		end
 	end;
-	
+
 	if typeof(Key) == "EnumItem" and Sealz.KeyCodeReplace[Key.Name] then
 		return Sealz.KeyCodeReplace[Key.Name];
 	end
-	
+
 	return (typeof(Key) == "EnumItem" and Key.Name) or Key;
 end;
 
@@ -647,7 +653,7 @@ end
 
 Sealz.ParseDropdown = function(Data)
 	if not Data then return "None" end;
-	
+
 	local Result;
 
 	if typeof(Data) == 'table' then
@@ -687,10 +693,9 @@ end;
 
 Sealz.FormatAudioTimer = function(sec: number)
 	local hrs , mins , sec = math.round(sec / 3600),math.round((sec % 3600) / 60),math.round(sec % 60);
-	
+
 	return (hrs > 0 and string.format("%02d:%02d:%02d",hrs,mins,sec)) or string.format("%02d:%02d",mins,sec)
 end;
-
 
 Sealz.EmptyFunction = function() end;
 
@@ -700,7 +705,7 @@ function Sealz:CreateColorPickerWindow(Core)
 	local TransManager = Sealz.Transparent();
 	local CurrentColor: Color3, Root: Frame = Core.Value , Core.Root;
 	local CurrentIndex = Root.ZIndex;
-	
+
 	local ColorHandlerFrame = Instance.new("Frame")
 	local UICorner = Instance.new("UICorner")
 	local UIStroke = Instance.new("UIStroke")
@@ -737,7 +742,7 @@ function Sealz:CreateColorPickerWindow(Core)
 	MapMarker.Size = UDim2.new(0, 20, 0, 2)
 	MapMarker.ZIndex = CurrentIndex + 109;
 	TransManager:Add(MapMarker)
-	
+
 	ColorHandlerFrame.Active = true;
 	ColorHandlerFrame.Name = "ColorHandlerFrame"
 	ColorHandlerFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
@@ -747,23 +752,23 @@ function Sealz:CreateColorPickerWindow(Core)
 	ColorHandlerFrame.Size = UDim2.new(0, 190, 0, 200)
 	ColorHandlerFrame.ZIndex = CurrentIndex + 100;
 	ColorHandlerFrame.BackgroundTransparency = 0;
-	
+
 	TransManager:Add(ColorHandlerFrame)
 	Sealz:AddVisibleSignal(ColorHandlerFrame,"BackgroundTransparency",0.95,true,Sealz.ScreenGui);
-	
+
 	ColorHandlerFrame.Visible = false;
-	
+
 	UICorner.Parent = ColorHandlerFrame
 
 	UIStroke.Color = Color3.fromRGB(34, 34, 34)
 	UIStroke.Parent = ColorHandlerFrame
 	TransManager:Add(UIStroke)
-	
+
 	UIShadow.Transparency = 0.500
 	UIShadow.BlurRadius = UDim.new(0, 20)
 	UIShadow.Parent = ColorHandlerFrame
 	TransManager:Add(UIShadow)
-	
+
 	Saturation.Name = "Saturation"
 	Saturation.Parent = ColorHandlerFrame
 	Saturation.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -773,11 +778,11 @@ function Sealz:CreateColorPickerWindow(Core)
 	Saturation.Size = UDim2.new(0, 150, 0, 150)
 	Saturation.ZIndex = CurrentIndex + 105;
 	TransManager:Add(Saturation)
-	
+
 	UIStroke_2.Color = Color3.fromRGB(34, 34, 34)
 	UIStroke_2.Parent = Saturation
 	TransManager:Add(UIStroke_2)
-	
+
 	UICorner_2.Parent = Saturation
 
 	BlackFrame.Name = "BlackFrame"
@@ -819,7 +824,7 @@ function Sealz:CreateColorPickerWindow(Core)
 	CircleMark.Position = UDim2.new(0.5, 0, 0.5, 0)
 	CircleMark.Size = UDim2.new(0, 7, 0, 7)
 	CircleMark.ZIndex = CurrentIndex + 110;
-	
+
 	UICorner_5.CornerRadius = UDim.new(1, 0)
 	UICorner_5.Parent = CircleMark
 
@@ -884,15 +889,15 @@ function Sealz:CreateColorPickerWindow(Core)
 	UIStroke_5.Color = Color3.fromRGB(34, 34, 34)
 	UIStroke_5.Parent = TextInput
 	TransManager:Add(UIStroke_5)
-	
+
 	TransManager:Fire(false,true);
-	
+
 	CoreSelf.Root = ColorHandlerFrame;
-	
+
 	CoreSelf.H = 1;
 	CoreSelf.S = 1;
 	CoreSelf.V = 1;
-	
+
 	CoreSelf.TextboxSignal = TextBox.FocusLost:Connect(function()
 		local met,hex = pcall(Color3.fromHex,TextBox.Text:gsub('#',''));
 		if met and hex then
@@ -903,44 +908,44 @@ function Sealz:CreateColorPickerWindow(Core)
 			TextBox.Text = "#"..CurrentColor:ToHex();
 		end;
 	end);
-	
+
 	CoreSelf.SetColor = function(Color)
 		CurrentColor = Color;
 		CoreSelf.LoadCurrentColor();
 		CoreSelf.Render();
 	end;
-	
+
 	CoreSelf.LoadCurrentColor = function()
 		local H,S,V = CurrentColor:ToHSV();
-		
+
 		CoreSelf.H = H;
 		CoreSelf.S = S;
 		CoreSelf.V = V;
 	end;
-	
+
 	CoreSelf.Render = function()
 		CurrentColor = Color3.fromHSV(CoreSelf.H,CoreSelf.S,CoreSelf.V);
 		MapMarker.Position = UDim2.fromScale(0.5,CoreSelf.H);
 		ColorFrame.BackgroundColor3 = Color3.fromHSV(CoreSelf.H,1,1);
 		CircleMark.Position = UDim2.fromScale(CoreSelf.S,1-CoreSelf.V);
-		
+
 		TextBox.Text = "#"..CurrentColor:ToHex();
-		
+
 		if Core.OnRender then
 			Core.OnRender(CurrentColor);
 		end;
 	end;
-	
+
 	CoreSelf.ClearOnOverFrame = function()
 		if CoreSelf.OnOverFrame then
 			CoreSelf.OnOverFrame:Disconnect();
 		end
 	end;
-	
+
 	local mainSize = UDim2.new(0, 190, 0, 200);
-	
+
 	local UIScale = Instance.new('UIScale',ColorHandlerFrame);
-	
+
 	CoreSelf.TweenScale = function(bool)
 		if bool then
 			Sealz:Tween(UIScale,ScaleTween,{
@@ -952,34 +957,34 @@ function Sealz:CreateColorPickerWindow(Core)
 			})
 		end;
 	end;
-	
+
 	CoreSelf.TweenScale(false);
-	
+
 	CoreSelf.Wake = function(bool)
 		CoreSelf.ClearOnOverFrame();
-		
+
 		TransManager:Fire(bool);
-		
-		
+
+
 		if bool then
-			
+
 			CoreSelf.TweenScale(true);
-				
+
 			ColorHandlerFrame.Position = UDim2.fromOffset(Root.AbsolutePosition.X + (Root.AbsoluteSize.X / 2),Root.AbsolutePosition.Y + (Root.AbsoluteSize.Y / 2) + Sealz.InsetSize);
-			
+
 			CoreSelf.OnOverFrame = UserInputService.InputBegan:Connect(Sealz:OnOverFrame(ColorHandlerFrame,function()
 				CoreSelf.ClearOnOverFrame();
-				
+
 				CoreSelf.Wake(false);
 			end));
 		else
 			CoreSelf.TweenScale(false);
 		end;
 	end;
-	
+
 	CoreSelf.IsHolding = false;
 	CoreSelf.Wait = task.wait;
-	
+
 	CoreSelf.Signals = {
 		ColorHandlerFrame.InputBegan:Connect(function(Input)
 			if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
@@ -994,7 +999,7 @@ function Sealz:CreateColorPickerWindow(Core)
 		MapFrame.InputBegan:Connect(function(Input)
 			if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
 				CoreSelf.IsHolding = true;
-				
+
 				while (UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) or CoreSelf.IsHolding) do CoreSelf.Wait()
 					local ColorY = MapFrame.AbsolutePosition.Y
 					local ColorYM = ColorY + MapFrame.AbsoluteSize.Y;
@@ -1024,10 +1029,10 @@ function Sealz:CreateColorPickerWindow(Core)
 			end
 		end),
 	};
-	
+
 	CoreSelf.LoadCurrentColor();
 	CoreSelf.Render();
-	
+
 	return CoreSelf;
 end;
 
@@ -1035,7 +1040,7 @@ function Sealz:CreateDropdown(Core)
 	local SizeX: number = Core.Size;
 	local Root: Frame = Core.Root;
 	local ZIndex = Root.ZIndex;
-	
+
 	local DropdownSelf = {};
 	local TransManager = Sealz.Transparent();
 	local DropdownHandlerFrame = Instance.new("Frame")
@@ -1118,40 +1123,40 @@ function Sealz:CreateDropdown(Core)
 	ScrollingFrame.ScrollBarThickness = 1
 	ScrollingFrame.ScrollBarImageColor3 = Sealz.AccentColor
 	TransManager:Add(ScrollingFrame);
-	
+
 	UIListLayout.Parent = ScrollingFrame
 	UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
 	Sealz:SET_SCROLLING(ScrollingFrame,UIListLayout)
-	
+
 	UICorner_3.CornerRadius = UDim.new(0, 5)
 	UICorner_3.Parent = ScrollingFrame
 
 	UIStroke_3.Color = Color3.fromRGB(34, 34, 34)
 	UIStroke_3.Parent = ScrollingFrame
 	TransManager:Add(UIStroke_3)
-	
+
 	TransManager:Fire(false,true)
-	
+
 	DropdownSelf.ClearOnOverFrame = function()
 		if DropdownSelf.RuntimeThread then
 			task.cancel(DropdownSelf.RuntimeThread);
 		end;
-		
+
 		if DropdownSelf.OnOverFrame then
 			DropdownSelf.OnOverFrame:Disconnect()
 		end
 	end
-	
+
 	DropdownSelf.ItemTransManager = Sealz.Transparent();
-	
+
 	DropdownSelf.SeachSignal = TextBox:GetPropertyChangedSignal('Text'):Connect(function()
 		if TextBox.Text:byte() then
 			for i,v in next , ScrollingFrame:GetChildren() do
 				if v:IsA('Frame') then
 					local content: string = v:GetAttribute('content');
-					
+
 					if string.find(content:lower(),TextBox.Text:lower(),1,true) then
 						v.Visible = true;
 					else
@@ -1167,9 +1172,9 @@ function Sealz:CreateDropdown(Core)
 			end;
 		end;
 	end);
-	
+
 	local uiscale = Instance.new('UIScale',DropdownHandlerFrame);
-	
+
 	DropdownSelf.ScaleTween = function(bool)
 		if bool then
 			Sealz:Tween(uiscale,ScaleTween,{
@@ -1181,26 +1186,28 @@ function Sealz:CreateDropdown(Core)
 			})
 		end;
 	end;
-	
+
 	DropdownSelf.ScaleTween(false);
-	
+
 	DropdownSelf.Visible = false;
 	DropdownSelf.Wake = function()
 		DropdownSelf.ClearOnOverFrame();
-		
+
 		DropdownSelf.Visible = true;
 		
+		TextBox.Text = "";
+		
 		TransManager:Fire(true);
-		
+
 		DropdownSelf.ItemTransManager:Fire(true);
-		
+
 		DropdownSelf.ScaleTween(true)
-		
+
 		DropdownSelf.RuntimeThread = task.spawn(function()
 			while DropdownSelf.Visible do task.wait()
 				local SizeY = math.clamp(UIListLayout.AbsoluteContentSize.Y + 50, 100,255);
-				
-				
+
+
 				Sealz:Tween(DropdownHandlerFrame,BasedTween,{
 					Size = UDim2.fromOffset(SizeX,SizeY);
 				})
@@ -1208,40 +1215,40 @@ function Sealz:CreateDropdown(Core)
 				DropdownHandlerFrame.Position = UDim2.fromOffset(Root.AbsolutePosition.X + (Root.AbsoluteSize.X / 2),Root.AbsolutePosition.Y + (Root.AbsoluteSize.Y / 2) + Sealz.InsetSize);
 			end;
 		end);
-		
+
 		DropdownSelf.OnOverFrame = UserInputService.InputBegan:Connect(Sealz:OnOverFrame(DropdownHandlerFrame,function()
 			DropdownSelf.Visible = false;
-			
+
 			DropdownSelf.ClearOnOverFrame();
 			TransManager:Fire(false);
 			DropdownSelf.ScaleTween(false);
 			DropdownSelf.ItemTransManager:Fire(false);
 		end))
 	end;
-	
+
 	DropdownSelf.ItemSignals = {};
-	
+
 	DropdownSelf.Clear = function()
 		if DropdownSelf.ItemTransManager then
 			table.clear(DropdownSelf.ItemTransManager);
 			DropdownSelf.ItemTransManager = nil;
 		end;
-		
+
 		DropdownSelf.ItemTransManager = Sealz.Transparent();
-		
+
 		for i,v in next , ScrollingFrame:GetChildren() do
 			if v:IsA('Frame') then
 				v:Destroy();
 			end
 		end;
-		
+
 		for i,v in next , DropdownSelf.ItemSignals do
 			v:Disconnect();
 		end;
-		
+
 		table.clear(DropdownSelf.ItemSignals);
 	end;
-	
+
 	DropdownSelf.DrawImage = function(Image,Text,Desc)
 		local ImageTextFrame = Instance.new("Frame")
 		local TextLabel = Instance.new("TextLabel")
@@ -1250,7 +1257,7 @@ function Sealz:CreateDropdown(Core)
 		local ImageLabel = Instance.new("ImageLabel")
 		local UICorner_2 = Instance.new("UICorner")
 		local SecLabel = Instance.new("TextLabel")
-		
+
 		ImageTextFrame.Name = "ImageTextFrame"
 		ImageTextFrame.Parent = ScrollingFrame
 		ImageTextFrame.BackgroundColor3 = Color3.fromRGB(33, 33, 33)
@@ -1277,7 +1284,7 @@ function Sealz:CreateDropdown(Core)
 		TextLabel.TextTransparency = 0.150
 		TextLabel.TextXAlignment = Enum.TextXAlignment.Left
 		local LabelRef = DropdownSelf.ItemTransManager:Add(TextLabel)
-		
+
 		UICorner.CornerRadius = UDim.new(0, 4)
 		UICorner.Parent = ImageTextFrame
 
@@ -1302,6 +1309,7 @@ function Sealz:CreateDropdown(Core)
 		ImageLabel.Size = UDim2.new(0, 65, 0, 65)
 		ImageLabel.ZIndex = ZIndex + 123
 		ImageLabel.Image = Image
+		ImageLabel.ScaleType = Enum.ScaleType.Crop
 		local ImageRef = DropdownSelf.ItemTransManager:Add(ImageLabel)
 
 		UICorner_2.Parent = ImageLabel
@@ -1324,23 +1332,23 @@ function Sealz:CreateDropdown(Core)
 		SecLabel.TextXAlignment = Enum.TextXAlignment.Left
 		SecLabel.TextYAlignment = Enum.TextYAlignment.Top
 		local SecRef = DropdownSelf.ItemTransManager:Add(SecLabel)
-		
+
 		return {
 			on = function()
 				Sealz:Tween(TextLabel,BasedTween,{
 					TextTransparency = 0.150,
 					TextColor3 = Sealz.AccentColor
 				})
-				
+
 				Sealz:Tween(ImageLabel,BasedTween,{
 					ImageTransparency = 0
 				})
-				
+
 				Sealz:Tween(SecLabel,BasedTween,{
 					TextTransparency = 0.5,
 					TextColor3 = Sealz.AccentColor
 				})
-				
+
 				ImageRef("ImageTransparency",0)
 				SecRef("TextTransparency",0.5)
 				LabelRef("TextTransparency",0.15)
@@ -1359,7 +1367,7 @@ function Sealz:CreateDropdown(Core)
 					TextTransparency = 0.75,
 					TextColor3 = Color3.fromRGB(255, 255, 255)
 				})
-				
+
 				ImageRef("ImageTransparency",0.5)
 				SecRef("TextTransparency",0.75)
 				LabelRef("TextTransparency",0.5)
@@ -1367,7 +1375,7 @@ function Sealz:CreateDropdown(Core)
 			root = ImageTextFrame
 		}
 	end;
-	
+
 	DropdownSelf.DrawText = function(Text)
 		local TextFrame = Instance.new("Frame")
 		local TextLabel = Instance.new("TextLabel")
@@ -1383,7 +1391,7 @@ function Sealz:CreateDropdown(Core)
 		TextFrame.Size = UDim2.new(1, 0, 0, 20)
 		TextFrame.ZIndex = ZIndex + 120
 		TextFrame:SetAttribute("content",Text);
-		
+
 		DropdownSelf.ItemTransManager:Add(TextFrame)
 		TextLabel.Parent = TextFrame
 		TextLabel.AnchorPoint = Vector2.new(0, 0.5)
@@ -1400,9 +1408,9 @@ function Sealz:CreateDropdown(Core)
 		TextLabel.TextSize = 11.000
 		TextLabel.TextTransparency = 0.150
 		TextLabel.TextXAlignment = Enum.TextXAlignment.Left
-		
+
 		local rd = DropdownSelf.ItemTransManager:Add(TextLabel)
-		
+
 		UICorner.CornerRadius = UDim.new(0, 4)
 		UICorner.Parent = TextFrame
 
@@ -1415,16 +1423,16 @@ function Sealz:CreateDropdown(Core)
 		LineFrame.Position = UDim2.new(0.5, 0, 1, 0)
 		LineFrame.Size = UDim2.new(1, -1, 0, 1)
 		LineFrame.ZIndex = ZIndex + 125
-		
+
 		DropdownSelf.ItemTransManager:Add(LineFrame);
-		
+
 		return {
 			on = function()
 				Sealz:Tween(TextLabel,BasedTween,{
 					TextTransparency = 0.150,
 					TextColor3 = Sealz.AccentColor
 				})
-				
+
 				rd("TextTransparency",0.15)
 			end,
 			off = function()
@@ -1437,19 +1445,19 @@ function Sealz:CreateDropdown(Core)
 			root = TextFrame
 		}
 	end;
-	
+
 	return DropdownSelf;
 end;
 
 function Sealz:CreateBlockWindow(Core)
 	local Root: Frame = Core.Root;
 	local IndexLayer = Root.ZIndex;
-	
+
 	local BlockSelf = {};
 	local TransManager = Sealz.Transparent();
-	
+
 	BlockSelf.Signal = CreateSignal(false);
-	
+
 	local BlockHandlerFrame = Instance.new("Frame")
 	local UICorner = Instance.new("UICorner")
 	local UIStroke = Instance.new("UIStroke")
@@ -1471,55 +1479,55 @@ function Sealz:CreateBlockWindow(Core)
 	UIStroke.Color = Color3.fromRGB(34, 34, 34)
 	UIStroke.Parent = BlockHandlerFrame
 	TransManager:Add(UIStroke)
-	
+
 	UIShadow.Transparency = 0.500
 	UIShadow.BlurRadius = UDim.new(0, 20)
 	UIShadow.Parent = BlockHandlerFrame
 	TransManager:Add(UIShadow)
-	
+
 	UIListLayout.Parent = BlockHandlerFrame
 	UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	
+
 	TransManager:Fire(false,true);
-	
+
 	BlockSelf.SetSize = function()
 		BlockHandlerFrame.Size = UDim2.new(0, 295, 0, UIListLayout.AbsoluteContentSize.Y)
-		
+
 		return UIListLayout.AbsoluteContentSize.Y;
 	end;
-	
+
 	BlockSelf.ClearOnOverFrame = function()
 		if BlockSelf.OnOverFrame then
 			BlockSelf.OnOverFrame:Disconnect();
 		end;
 	end;
-	
+
 	BlockSelf.Wake = function()
 		BlockSelf.ClearOnOverFrame();
-		
+
 		TransManager:Fire(true);
-		
+
 		BlockSelf.Signal:Fire(true);
-		
+
 		BlockHandlerFrame.Position = UDim2.fromOffset(Root.AbsolutePosition.X + 25, Root.AbsolutePosition.Y + (Root.AbsoluteSize.Y) + (BlockSelf.SetSize() / 2))
-		
+
 		BlockSelf.OnOverFrame = UserInputService.InputBegan:Connect(Sealz:OnOverFrame(BlockHandlerFrame,function()
 			BlockSelf.ClearOnOverFrame();
-			
+
 			BlockSelf.Signal:Fire(false);
 			TransManager:Fire(false);
 		end));
 	end;
-	
+
 	local Regisiter = Sealz:Regisiter(BlockHandlerFrame,BlockSelf.Signal);
-	
+
 	Regisiter.Root = BlockSelf;
-	
+
 	function Regisiter:Wake()
 		BlockSelf.Wake();
 	end;
-	
+
 	return Regisiter;
 end;
 
@@ -1527,28 +1535,28 @@ end;
 function Sealz:CreateInputs(UI: Frame , Signal)
 	local IndexLayer = UI.ZIndex;
 	local Inputs = {};
-	
+
 	Inputs.set_layout = function(ITEM: Frame)
 		ITEM.LayoutOrder = -(#UI:GetChildren() + 1);
 	end;
-	
+
 	function Inputs:AddButton(Config)
 		Config = Sealz:Format(Config,{
 			Name = "Button",
 			Icon = false,
 			Callback = Sealz.EmptyFunction,
 		});
-		
+
 		local ButtonSelf = {};
 		local TransManager = Sealz.Transparent();
-		
+
 		local ButtonInput = Instance.new("Frame")
 		local UICorner = Instance.new("UICorner")
 		local UIShadow = Instance.new("UIShadow")
 		local Button = Instance.new("TextButton")
-		
+
 		Inputs.set_layout(ButtonInput);
-		
+
 		ButtonInput.Name = "ButtonInput"
 		ButtonInput.Parent = UI
 		ButtonInput.BackgroundColor3 = Sealz.AccentColor
@@ -1557,10 +1565,10 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		ButtonInput.BorderSizePixel = 0
 		ButtonInput.Size = UDim2.new(0, 100, 0, 20)
 		ButtonInput.ZIndex = IndexLayer + 1
-		
+
 		TransManager:Add(ButtonInput)
 		Sealz:AddHoverSignal(ButtonInput , "BackgroundTransparency" , 0.25,0.5);
-		
+
 		UICorner.CornerRadius = UDim.new(0, 5)
 		UICorner.Parent = ButtonInput
 
@@ -1568,7 +1576,7 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		UIShadow.BlurRadius = UDim.new(0, 5)
 		UIShadow.Parent = ButtonInput
 		TransManager:Add(UIShadow)
-		
+
 		Button.Name = "Button"
 		Button.Parent = ButtonInput
 		Button.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -1579,7 +1587,7 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		Button.Position = UDim2.new(0.5, 0, 0.5, 0)
 		Button.Size = UDim2.new(1, 0, 1, 0)
 		Button.ZIndex = IndexLayer + 2;
-		
+
 		if Config.Icon then
 			Button.FontFace = Sealz.Icons;
 			Button.Text = Config.Name
@@ -1587,38 +1595,38 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 			Button.Font = Sealz.Font
 			Button.Text = Config.Name
 		end;
-		
+
 		Button.TextColor3 = Color3.fromRGB(255, 255, 255)
 		Button.TextSize = 11.000
 		Button.TextTransparency = 0.500;
 		TransManager:Add(Button)
 
 		TransManager:Fire(Signal:Get(),true);
-		
+
 		local IconSize = Vector2.new(5,0);
 		ButtonSelf.Update = function()
 			local size = (Config.Icon and IconSize) or Sealz:GetTextSize(Button);
-			
+
 			ButtonInput.Size = UDim2.new(0, size.X + 25, 0, 20)
 		end;
-		
+
 		function ButtonSelf:SetText(new)
 			Button.Text = new;
-			
+
 			ButtonSelf.Update();
 		end;
-		
-		
+
+
 		ButtonSelf.Activated = Button.Activated:Connect(Config.Callback)
 		ButtonSelf.Signal = Signal:Connect(function(b)
 			TransManager:Fire(b)	
 		end);
-		
+
 		ButtonSelf.Update();
-		
+
 		return ButtonSelf;
 	end;
-	
+
 	function Inputs:AddToggle(Config)
 		Config = Sealz:Format(Config,{
 			Default = false,
@@ -1628,17 +1636,17 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		local ToggleSelf = {
 			Value = Config.Default
 		};
-		
+
 		local TransManager = Sealz.Transparent();
-		
+
 		local ToggleInput = Instance.new("Frame")
 		local UICorner = Instance.new("UICorner")
 		local Circle = Instance.new("Frame")
 		local UICorner_2 = Instance.new("UICorner")
 		local UIShadow = Instance.new("UIShadow")
-		
+
 		Inputs.set_layout(ToggleInput);
-		
+
 		ToggleInput.Name = "ToggleInput"
 		ToggleInput.Parent = UI
 		ToggleInput.BackgroundColor3 = Color3.fromRGB(33, 33, 33)
@@ -1671,7 +1679,7 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		UIShadow.BlurRadius = UDim.new(0, 5)
 		UIShadow.Parent = ToggleInput
 		TransManager:Add(UIShadow)
-		
+
 		TransManager:Fire(Signal:Get(),true);
 
 		ToggleSelf.Root = ToggleInput
@@ -1682,57 +1690,57 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 					Position = UDim2.fromScale(0.725,0.5),
 					BackgroundColor3 = Sealz.AccentColor
 				})
-				
+
 				Sealz:Tween(ToggleInput , BasedTween , {
 					BackgroundColor3 = Color3.fromRGB(43, 43, 43)
 				})
-				
+
 				circle("BackgroundTransparency",0.25)
 			else
-				
+
 				Sealz:Tween(Circle , BasedTween , {
 					BackgroundTransparency = 0.5,
 					Position = UDim2.fromScale(0.275,0.5),
 					BackgroundColor3 = Color3.fromRGB(41, 41, 41)
 				})
-				
+
 				Sealz:Tween(ToggleInput , BasedTween , {
 					BackgroundColor3 = Color3.fromRGB(33, 33, 33)
 				})
-				
+
 				circle("BackgroundTransparency",0.5)
 			end;
 		end;
-		
+
 		ToggleSelf.OnChanged(ToggleSelf.Value)
-		
+
 		ToggleSelf.Activated = Sealz:AddInput(ToggleInput,function()
 			ToggleSelf.Value = not ToggleSelf.Value;
-			
+
 			ToggleSelf.OnChanged(ToggleSelf.Value);
-			
+
 			Config.Callback(ToggleSelf.Value)
 		end);
-		
+
 		ToggleSelf.Signal = Signal:Connect(function(b)
 			TransManager:Fire(b)	
 		end);
-		
+
 		function ToggleSelf:SetValue(a)
 			ToggleSelf.Value = a;
-			
+
 			ToggleSelf.OnChanged(ToggleSelf.Value);
-			
+
 			Config.Callback(ToggleSelf.Value)
 		end;
-		
+
 		function ToggleSelf:GetValue()
 			return ToggleSelf.Value;
 		end;
-		
+
 		function ToggleSelf:AutoKeybind(Default: Enum.KeyCode, Type: string, Enabled: boolean)
 			local GlobalDefault,GlobalType,GlobalEnabled = Default,Type,Enabled;
-			
+
 			local KeybindOpt = Sealz:CreateBlockWindow(ToggleSelf);
 			local FlagEnabled = Config.Flag and Config.Flag.."AutoBindx0Enabledx0";
 			local FlagKeybind = Config.Flag and Config.Flag.."AutoBindx0Keyx0";
@@ -1745,7 +1753,7 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 					GlobalEnabled = Value;
 				end,
 			});
-			
+
 			KeybindOpt:AddLabel("Key"):AddKeybind({
 				Default = GlobalDefault,
 				Flag = FlagKeybind,
@@ -1753,7 +1761,7 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 					GlobalDefault = Value;
 				end,
 			});
-			
+
 			KeybindOpt:AddLabel("Type"):AddDropdown({
 				Default = GlobalType,
 				Flag = FlagType,
@@ -1762,11 +1770,11 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 					GlobalType = Value;
 				end,
 			});
-			
+
 			local Lib = {};
-			
+
 			Lib.Activated = false;
-			
+
 			Lib.Signals = {
 				UserInputService.InputBegan:Connect(function(Input)
 					if GlobalEnabled then
@@ -1778,14 +1786,14 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 							end;
 						end;
 					end;
-					
+
 					if Input.UserInputType == Enum.UserInputType.MouseButton2 then
 						if Sealz:IsMouseOverFrame(ToggleInput) then
 							KeybindOpt:Wake();
 						end;
 					end;
 				end),
-				
+
 				UserInputService.InputEnded:Connect(function(Input)
 					if Input.KeyCode == GlobalDefault or Input.UserInputType == GlobalDefault then
 						if GlobalType == "Hold" then
@@ -1794,19 +1802,19 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 					end;
 				end)
 			};
-			
+
 			function Lib:IsActive()
 				return GlobalEnabled and Lib.Activated;
 			end;
-			
+
 			return Lib;
 		end;
-		
+
 		Sealz:AddFlag(Config.Flag,ToggleSelf);
-		
+
 		return ToggleSelf;
 	end;
-	
+
 	function Inputs:AddSlider(Config)
 		Config = Sealz:Format(Config , {
 			-- Flag = "idx",
@@ -1819,7 +1827,7 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 			Nums = {},
 			Callback = Sealz.EmptyFunction,
 		});
-		
+
 		local SliderSelf = {
 			Value = Config.Default
 		};
@@ -1833,7 +1841,7 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		local UIGradient = Instance.new("UIGradient")
 
 		Inputs.set_layout(SliderInput);
-		
+
 		SliderInput.Name = "SliderInput"
 		SliderInput.Parent = UI
 		SliderInput.BackgroundColor3 = Color3.fromRGB(33, 33, 33)
@@ -1843,9 +1851,9 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		SliderInput.ClipsDescendants = true
 		SliderInput.Size = UDim2.new(0, Config.Size, 0, 15)
 		SliderInput.ZIndex = IndexLayer + 1
-		
+
 		Sealz:AddHoverSignal(SliderInput,"BackgroundTransparency",0.25,0.5,SlideFrame)
-		
+
 		TransManager:Add(SliderInput)
 
 		UICorner.CornerRadius = UDim.new(1, 0)
@@ -1854,9 +1862,9 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		UIShadow.Transparency = 0.500
 		UIShadow.BlurRadius = UDim.new(0, 5)
 		UIShadow.Parent = SliderInput
-		
+
 		TransManager:Add(UIShadow)
-		
+
 		SlideFrame.Name = "SlideFrame"
 		SlideFrame.Parent = SliderInput
 		SlideFrame.AnchorPoint = Vector2.new(0, 0.5)
@@ -1867,11 +1875,11 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		SlideFrame.Position = UDim2.new(0, 0, 0.5, 0)
 		SlideFrame.Size = UDim2.new(1, 0, 1, 0)
 		SlideFrame.ZIndex = IndexLayer + 2
-		
+
 		UIGradient.Offset = Vector2.new(0, 0)
 		UIGradient.Transparency = NumberSequence.new{NumberSequenceKeypoint.new(0.00, 0.00), NumberSequenceKeypoint.new(0.01, 1.00), NumberSequenceKeypoint.new(1.00, 1.00)}
 		UIGradient.Parent = SlideFrame
-		
+
 		TransManager:Add(SlideFrame);
 
 		UICorner_2.CornerRadius = UDim.new(1, 0)
@@ -1894,25 +1902,25 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		SlideIndicator.TextColor3 = Color3.fromRGB(255, 255, 255)
 		SlideIndicator.TextSize = 10.000
 		SlideIndicator.TextTransparency = 0.250
-		
+
 		TransManager:Add(SlideIndicator)
-		
+
 		SliderSelf.OnChanged = function()
 			local size = Sealz.GetSliderSize(SliderSelf.Value , Config.Min,Config.Max);
-			
+
 			if Config.Nums[SliderSelf.Value] then
 				SlideIndicator.Text = Config.Nums[SliderSelf.Value];
 			else
 				SlideIndicator.Text = tostring(SliderSelf.Value)..(Config.Type or "");
 			end;
-			
+
 			Sealz:Tween(UIGradient,BasedTween, {
 				Offset = Vector2.new(size, 0)
 			})
-			
+
 			Config.Callback(SliderSelf.Value)
 		end;
-		
+
 		SliderSelf.TextBox = SlideIndicator.FocusLost:Connect(function()
 			local Result = Sealz.Parse(SlideIndicator.Text , true);
 
@@ -1922,7 +1930,7 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 
 				if Value then
 					SliderSelf.Value = Value;
-					
+
 					SliderSelf.OnChanged()
 				else
 					SliderSelf.OnChanged()
@@ -1931,79 +1939,79 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 				SliderSelf.OnChanged()
 			end;
 		end);
-		
+
 		local IsHolding = false;
-		
+
 		SliderSelf.OnChanged()
-		
+
 		SliderSelf.Update = function(Input)
 			local SizeScale = math.clamp((((Input.Position.X) - SliderInput.AbsolutePosition.X) / SliderInput.AbsoluteSize.X), 0, 1);
 			local Main = ((Config.Max - Config.Min) * SizeScale) + Config.Min;
 			local Value = Sealz:Rounding(Main,Config.Rounding);
-			
+
 			SliderSelf.Value = Value;
-			
+
 			SliderSelf.OnChanged()
 		end;
-		
+
 		SliderSelf.SetupInput = function()
 			IsHolding = false;
-			
+
 			return SliderInput.InputBegan:Connect(function(Input)
 				if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
 					IsHolding = true
 					SliderSelf.Update(Input)
 				end
 			end),
-			SliderInput.InputEnded:Connect(function(Input)
-				if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-					if UserInputService.TouchEnabled then
-						if not Sealz:IsMouseOverFrame(SliderInput) then
-							IsHolding = false
-						end;
-					else
-						IsHolding = false
-					end;
-				end
-			end),
-			UserInputService.InputChanged:Connect(function(Input)
-				if IsHolding then
-					if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch)  then
+				SliderInput.InputEnded:Connect(function(Input)
+					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
 						if UserInputService.TouchEnabled then
 							if not Sealz:IsMouseOverFrame(SliderInput) then
 								IsHolding = false
+							end;
+						else
+							IsHolding = false
+						end;
+					end
+				end),
+				UserInputService.InputChanged:Connect(function(Input)
+					if IsHolding then
+						if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch)  then
+							if UserInputService.TouchEnabled then
+								if not Sealz:IsMouseOverFrame(SliderInput) then
+									IsHolding = false
+								else
+									SliderSelf.Update(Input)
+								end;
 							else
 								SliderSelf.Update(Input)
 							end;
-						else
-							SliderSelf.Update(Input)
 						end;
 					end;
-				end;
-			end);
+				end);
 		end;
-		
+
 		SliderSelf.SignalController = function(a)
 			if a then
 				for i,v in next , SliderSelf.Signals do
 					v:Disconnect();
 				end;
-				
+
 				table.clear(SliderSelf.Signals);
-				
+
 				SliderSelf.Signals = {SliderSelf.SetupInput()};
 			else
 
 				for i,v in next , SliderSelf.Signals do
 					v:Disconnect();
 				end;
-				
+
 				table.clear(SliderSelf.Signals);
 			end;
 		end;
-		
+
 		SliderSelf.Signals = {SliderSelf.SetupInput()};
-		
+
 		SliderSelf.Signal = Signal:Connect(function(b)
 			TransManager:Fire(b)	
 			SliderSelf.SignalController(b)
@@ -2018,14 +2026,14 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		function SliderSelf:GetValue()
 			return SliderSelf.Value;
 		end;
-		
+
 		TransManager:Fire(Signal:Get(),true);
-		
+
 		Sealz:AddFlag(Config.Flag,SliderSelf);
 
 		return SliderSelf;
 	end;
-	
+
 	function Inputs:AddInput(Config)
 		Config = Sealz:Format(Config , {
 			Default = "",
@@ -2035,7 +2043,7 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 			Size = 75,
 			Numeric = false,
 		});
-		
+
 		local InputSelf = {
 			Value = Config.Default
 		};
@@ -2044,9 +2052,9 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		local UICorner = Instance.new("UICorner")
 		local UIShadow = Instance.new("UIShadow")
 		local TextBox = Instance.new("TextBox")
-		
+
 		Inputs.set_layout(TextInput)
-		
+
 		TextInput.Name = "TextInput"
 		TextInput.Parent = UI
 		TextInput.BackgroundColor3 = Color3.fromRGB(33, 33, 33)
@@ -2082,35 +2090,35 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 		TextBox.TextSize = 10.000
 		TransManager:Add(TextBox)
-		
+
 		TransManager:Fire(Signal:Get(),true);
-		
+
 		InputSelf.OnChanged = function(result)
 			InputSelf.Value = result or ((Config.Numeric and (tonumber(TextBox.Text) or Config.Default)) or TextBox.Text);
-				
+
 			Config.Callback(InputSelf.Value)
 		end;
-		
+
 		local placeholder = TextService:GetTextSize(TextBox.PlaceholderText,TextBox.TextSize,TextBox.Font,Vector2.new(math.huge,math.huge));
-		
+
 		InputSelf.UpdateSize = function()
 			if typeof(Config.Size) ~= "number" then
 				local size = Sealz:GetTextSize(TextBox);
-				
+
 				TextInput.Size = UDim2.new(0, math.max(size.X + 15 , placeholder.X + 15), 0, 20)
 			end;
 		end;
-		
+
 		InputSelf.UpdateSize();
-		
+
 		InputSelf.Activated = TextBox:GetPropertyChangedSignal("Text"):Connect(function()
 			InputSelf.UpdateSize();
-			
+
 			local result = Sealz.Parse(TextBox.Text , Config.Numeric);
 
 			if Config.Numeric then
 				TextBox.Text = string.gsub(TextBox.Text , '[^0-9.]','')
-				
+
 				return InputSelf.OnChanged();
 			end;
 
@@ -2118,9 +2126,9 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 				InputSelf.OnChanged(result)
 			end
 		end);
-		
+
 		InputSelf.OnChanged(Config.Default)
-		
+
 		InputSelf.Signal = Signal:Connect(function(b)
 			TransManager:Fire(b)	
 		end);
@@ -2141,7 +2149,7 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 
 		return InputSelf;
 	end;
-	
+
 	function Inputs:AddKeybind(Config)
 		Config = Sealz:Format(Config , {
 			Default = nil,
@@ -2149,18 +2157,18 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 			Callback = Sealz.EmptyFunction,
 			--Flag = "idx"
 		});
-		
+
 		local KeybindSelf = {
 			Value = Config.Default	
 		};
-		
+
 		local TransManager = Sealz.Transparent();
 		local KeybindInput = Instance.new("Frame")
 		local UICorner = Instance.new("UICorner")
 		local UIShadow = Instance.new("UIShadow")
 		local ValueText = Instance.new("TextLabel")
 		local IconText = Instance.new("TextLabel")
-		
+
 		Inputs.set_layout(KeybindInput)
 		KeybindInput.Name = "KeybindInput"
 		KeybindInput.Parent = UI
@@ -2171,7 +2179,7 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		KeybindInput.ClipsDescendants = true
 		KeybindInput.Size = UDim2.new(0, 75, 0, 20)
 		KeybindInput.ZIndex = IndexLayer + 1
-		
+
 		TransManager:Add(KeybindInput)
 
 		UICorner.CornerRadius = UDim.new(0, 5)
@@ -2199,7 +2207,7 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		ValueText.TextTransparency = 0.250
 		ValueText.TextXAlignment = Enum.TextXAlignment.Left
 		TransManager:Add(ValueText)
-		
+
 		IconText.Name = "IconText"
 		IconText.Parent = KeybindInput
 		IconText.AnchorPoint = Vector2.new(1, 0.5)
@@ -2217,29 +2225,29 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		IconText.TextTransparency = 0.250
 		IconText.TextXAlignment = Enum.TextXAlignment.Right
 		TransManager:Add(IconText)
-		
+
 		KeybindSelf.Update = function()
 			local size = Sealz:GetTextSize(ValueText);
-			
+
 			Sealz:Tween(KeybindInput,BasedTween,{
 				Size = UDim2.new(0, size.X + 35, 0, 20)
 			})
 		end;
-		
+
 		KeybindSelf.Update()
-		
+
 		KeybindSelf.OnChanged = function(value)
 			local result = (value or KeybindSelf.Value or Config.Default);
-			
+
 			if not table.find(Config.Blacklist,value) and not Config.Blacklist[value] then
 				KeybindSelf.Value = result;
-				
+
 				ValueText.Text = Sealz:GetKeyName(result);
-				
+
 				KeybindSelf.Update();
-				
+
 				task.spawn(Config.Callback , result);
-				
+
 				return true;
 			else
 				ValueText.Text = Sealz:GetKeyName(KeybindSelf.Value);
@@ -2247,25 +2255,25 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 				KeybindSelf.Update();
 			end;
 		end;
-		
-		
-		
+
+
+
 		KeybindSelf.Binding = false;
 		KeybindSelf.Activated = Sealz:AddInput(KeybindInput,function()
 			if KeybindSelf.Binding then
 				return;
 			end;
-			
+
 			KeybindSelf.Binding = true;
-			
+
 			ValueText.Text = "...";
-			
+
 			KeybindSelf.Update();
-			
+
 			local Once;
 			while not Once do
 				local Key = UserInputService.InputBegan:Wait();
-				
+
 				if Key.KeyCode ~= Enum.KeyCode.Unknown and (not table.find(Config.Blacklist,Key) and not Config.Blacklist[Key]) then
 					Once = Key.KeyCode;
 				elseif Key.UserInputType == Enum.UserInputType.MouseButton1 and (not table.find(Config.Blacklist,Enum.UserInputType.MouseButton1) and not Config.Blacklist[Enum.UserInputType.MouseButton1]) then
@@ -2274,12 +2282,12 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 					Once = Enum.UserInputType.MouseButton2;
 				end;
 			end;
-			
+
 			KeybindSelf.Binding = false;
-			
+
 			KeybindSelf.OnChanged(Once);
 		end);
-		
+
 		KeybindSelf.OnChanged(Config.Default)
 
 		KeybindSelf.Signal = Signal:Connect(function(b)
@@ -2302,18 +2310,18 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 
 		return KeybindSelf;
 	end;
-	
+
 	function Inputs:AddColorPicker(Config)
 		Config = Sealz:Format(Config , {
 			Default = Color3.fromRGB(255,255,255),
 			Callback = Sealz.EmptyFunction,
 			--Flag = "idx"
 		});
-		
+
 		if typeof(Config.Default)=="string" then
 			Config.Default = Color3.fromHex(string.gsub(Config.Default , "#",''));
 		end;
-		
+
 		local ColorPickerSelf = {
 			Value = Config.Default	
 		};
@@ -2322,7 +2330,7 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		local ColorPickerInput = Instance.new("Frame")
 		local UICorner = Instance.new("UICorner")
 		local UIShadow = Instance.new("UIShadow")
-		
+
 		Inputs.set_layout(ColorPickerInput);
 		ColorPickerInput.Name = "ColorPickerInput"
 		ColorPickerInput.Parent = UI
@@ -2331,7 +2339,7 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		ColorPickerInput.BorderSizePixel = 0
 		ColorPickerInput.Size = UDim2.new(0, 20, 0, 20)
 		ColorPickerInput.ZIndex = IndexLayer + 2;
-		
+
 		TransManager:Add(ColorPickerInput);
 
 		UICorner.CornerRadius = UDim.new(0, 5)
@@ -2340,32 +2348,32 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		UIShadow.Transparency = 0.500
 		UIShadow.BlurRadius = UDim.new(0, 5)
 		UIShadow.Parent = ColorPickerInput
-		
+
 		TransManager:Add(UIShadow);
-		
+
 		ColorPickerSelf.OnChanged = function(color)
 			ColorPickerSelf.Value = color;
 
 			Config.Callback(color);
 		end;
-		
+
 		ColorPickerSelf.OnRender = function(c)
-			
+
 			ColorPickerInput.BackgroundColor3 = c;
-			
+
 			ColorPickerSelf.OnChanged(c);
 		end;
-		
+
 		ColorPickerSelf.OnRender(Config.Default)
 
 		ColorPickerSelf.Root = ColorPickerInput;
-		
+
 		ColorPickerSelf.Handler = Sealz:CreateColorPickerWindow(ColorPickerSelf);
-		
+
 		ColorPickerSelf.WakeSignal = Sealz:AddInput(ColorPickerInput,function()
 			ColorPickerSelf.Handler.Wake(true);
 		end);
-		
+
 		ColorPickerSelf.Signal = Signal:Connect(function(b)
 			TransManager:Fire(b)	
 		end);
@@ -2374,7 +2382,7 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 			ColorPickerSelf.Value = a;
 
 			ColorPickerSelf.OnRender(a);
-			
+
 			ColorPickerSelf.Handler.SetColor(a);
 		end;
 
@@ -2388,12 +2396,12 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 
 		return ColorPickerSelf;
 	end;
-	
+
 	function Inputs:AddDropdown(Config)
 		Config = Sealz:Format(Config , {
 			Default = nil,
 			Values = {},
-			
+
 			--[[# Text 
 			"str"
 			
@@ -2404,27 +2412,27 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 				Description: str
 			}
 			]]
-		
+
 			Multi = false,
 			Callback = Sealz.EmptyFunction,
 			Flag = nil,
 			Type = "Text", -- Text , Image
 			Size = 145,
 		});
-		
+
 		Config.Default = Sealz.FormatDropdown(Config.Default)
-		
+
 		local DropdownSelf = {
 			Value = Config.Default	
 		};
-		
+
 		local TransManager = Sealz.Transparent();
 		local DropdownInput = Instance.new("Frame")
 		local UICorner = Instance.new("UICorner")
 		local UIShadow = Instance.new("UIShadow")
 		local ValueText = Instance.new("TextLabel")
 		local IconText = Instance.new("TextLabel")
-		
+
 		Inputs.set_layout(DropdownInput)
 		DropdownInput.Name = "DropdownInput"
 		DropdownInput.Parent = UI
@@ -2460,7 +2468,7 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		ValueText.TextTruncate = Enum.TextTruncate.SplitWord;
 		ValueText.TextTransparency = 0.250
 		ValueText.TextXAlignment = Enum.TextXAlignment.Left
-		
+
 		TransManager:Add(ValueText)
 		IconText.Name = "IconText"
 		IconText.Parent = DropdownInput
@@ -2481,21 +2489,21 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		TransManager:Add(IconText);
 		DropdownSelf.Size = Config.Size;
 		DropdownSelf.Root = DropdownInput;
-		
+
 		DropdownSelf.Handler = Sealz:CreateDropdown(DropdownSelf);
-		
+
 		Sealz:AddInput(DropdownInput,function()
 			DropdownSelf.Handler.Wake()
 		end)
-		
+
 		DropdownSelf.Update = function()
 			local Size = Sealz:GetTextSize(ValueText);
-			
+
 			Sealz:Tween(DropdownInput , BasedTween,{
 				Size = UDim2.new(0, math.clamp(Size.X + 35,55,150), 0, 20)
 			})
 		end;
-		
+
 		DropdownSelf.IsMatch = function(v1)	
 			if typeof(DropdownSelf.Value) == 'table' then
 				if DropdownSelf.Value[v1] or table.find(DropdownSelf.Value , v1) then
@@ -2507,46 +2515,46 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 				return true;
 			end;
 		end;
-		
+
 		DropdownSelf.OnChanged = function()
 			ValueText.Text = Sealz.ParseDropdown(DropdownSelf.Value)
-			
+
 			DropdownSelf.Update();
-			
+
 
 			Config.Callback(DropdownSelf.Value)
 		end
-		
+
 		DropdownSelf.Generate = function()
 			DropdownSelf.Handler.Clear();
-			
+
 			local LastPointer;
 			for i,v in next , Config.Values do
 				local itd = (Config.Type == "Text" and DropdownSelf.Handler.DrawText(tostring(v))) or DropdownSelf.Handler.DrawImage(v.Image,v.Name , v.Description);
 				local Name;
-				
+
 				if Config.Type == "Text" then
 					Name = tostring(v);
 				else
 					Name = rawget(v,'Name');
 				end;
-				
+
 				if Config.Multi then
 					if DropdownSelf.IsMatch(Name) then
 						itd.on()
 					else
 						itd.off()
 					end;
-					
+
 					local _,Signal = Sealz:AddInput(itd.root,function()
 						DropdownSelf.Value[Name] = not DropdownSelf.Value[Name];
-						
+
 						if DropdownSelf.IsMatch(Name) then
 							itd.on()
 						else
 							itd.off()
 						end;
-						
+
 						DropdownSelf.OnChanged()
 					end);
 
@@ -2558,38 +2566,38 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 					else
 						itd.off()
 					end;
-					
+
 					local _,Signal = Sealz:AddInput(itd.root,function()
 						if LastPointer then
 							LastPointer.off();
 						end;
-						
+
 						LastPointer = itd;
 						itd.on()
 						DropdownSelf.Value = Name;
-						
+
 						DropdownSelf.OnChanged()
 					end);
-					
+
 					table.insert(DropdownSelf.Handler.ItemSignals,Signal)
 				end;
 			end
 		end;
-		
+
 		DropdownSelf.Generate();
-		
+
 		DropdownSelf.Signal = Signal:Connect(function(b)
 			TransManager:Fire(b)	
 		end);
 
 		function DropdownSelf:SetValue(a)
 			DropdownSelf.Value = a;
-			
+
 			DropdownSelf.Generate()
-			
+
 			DropdownSelf.OnChanged()
 		end;
-		
+
 		function DropdownSelf:SetValues(a)
 			Config.Values = a;
 
@@ -2601,23 +2609,23 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		end;
 
 		TransManager:Fire(Signal:Get(),true);
-		
+
 		DropdownSelf.Update();
-		
+
 		Sealz:AddFlag(Config.Flag,DropdownSelf);
 
 		return DropdownSelf;
 	end;
-	
+
 	function Inputs:AddOption()
 		local Self = {};
-		
+
 		local TransManager = Sealz.Transparent();
 		local OptionInput = Instance.new("Frame")
 		local UICorner = Instance.new("UICorner")
 		local UIShadow = Instance.new("UIShadow")
 		local Button = Instance.new("TextButton")
-		
+
 		Inputs.set_layout(OptionInput)
 		OptionInput.Name = "OptionInput"
 		OptionInput.Parent = UI
@@ -2629,9 +2637,9 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		OptionInput.ZIndex = IndexLayer + 1
 		TransManager:Add(OptionInput)
 		Self.Root = OptionInput;
-		
+
 		local Handler = Sealz:CreateBlockWindow(Self)
-		
+
 		UICorner.CornerRadius = UDim.new(1, 0)
 		UICorner.Parent = OptionInput
 
@@ -2656,21 +2664,21 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		Button.TextSize = 14.000
 		Button.TextTransparency = 0.500
 		TransManager:Add(Button);
-		
+
 		TransManager:Fire(Signal:Get(),true);
 		Self.Activated = Button.Activated:Connect(function()
 			Handler:Wake()
 		end);
-		
+
 		Self.Signal = Signal:Connect(function(b)
 			TransManager:Fire(b)	
 		end);
-		
+
 		Handler.OptRoot = Self;
-		
+
 		return Handler;
 	end;
-	
+
 	-- This feature can be detect by anti-cheat
 	function Inputs:AddAudio(Config)
 		Config = Sealz:Format(Config,{
@@ -2678,15 +2686,15 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 			Volume = 1,
 			Speed = 1,
 		});
-		
+
 		local AudioInstance = Instance.new('Sound');
-		
+
 		AudioInstance.SoundId = Config.Audio;
 		AudioInstance.PlaybackSpeed = Config.Speed;
 		AudioInstance.Volume = Config.Volume;
-		
+
 		local AudioSelf = {};
-		
+
 		local TransManager = Sealz.Transparent();
 		local Audio = Instance.new("Frame")
 		local UICorner = Instance.new("UICorner")
@@ -2694,9 +2702,9 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		local ControlButton = Instance.new("TextButton")
 		local UIListLayout = Instance.new("UIListLayout")
 		local Timer = Instance.new("TextLabel")
-		
+
 		AudioInstance.Parent = Audio;
-		
+
 		Audio.Name = "Audio"
 		Audio.Parent = UI
 		Audio.BackgroundColor3 = Color3.fromRGB(33, 33, 33)
@@ -2706,7 +2714,7 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		Audio.ClipsDescendants = true
 		Audio.Size = UDim2.new(0, 95, 0, 20)
 		Audio.ZIndex = IndexLayer + 1
-		
+
 		TransManager:Add(Audio)
 
 		UICorner.CornerRadius = UDim.new(0, 5)
@@ -2754,72 +2762,72 @@ function Sealz:CreateInputs(UI: Frame , Signal)
 		Timer.TextColor3 = Color3.fromRGB(255, 255, 255)
 		Timer.TextSize = 6.000
 		Timer.TextTransparency = 0.350
-		
+
 		TransManager:Add(Timer);
-		
+
 		TransManager:Fire(Signal:Get(),true);
-		
+
 		AudioSelf.Update = function()
 			Timer.Text = string.format("%s / %s",Sealz.FormatAudioTimer(AudioInstance.TimePosition),Sealz.FormatAudioTimer(AudioInstance.TimeLength));
 			local size = Sealz:GetTextSize(Timer);
-			
+
 			Sealz:Tween(Audio,BasedTween,{
 				Size = UDim2.new(0, UIListLayout.AbsoluteContentSize.X + 10, 0, 20)
 			})
-			
+
 			Timer.Size = UDim2.new(0, size.X, 0, 20)
 		end;
-		
+
 		AudioSelf.Activated = Sealz:AddInput(ControlButton,function()
 			AudioInstance.Playing = not AudioInstance.Playing;
 		end)
-		
+
 		AudioSelf.Thread = task.spawn(function()
 			while true do task.wait(0.1)
 				if not AudioInstance.Playing then
 					ControlButton.Text = "play-small";
-					
+
 					if not Sealz:IsMouseOverFrame(Audio) then
 						AudioInstance.TimePosition = 0;
 					end;
 				else
 					ControlButton.Text = "pause-small"
 				end;
-				
+
 				AudioSelf.Update();
 			end;
 		end)
-		
+
 		AudioSelf.Update()
-		
+
 		AudioSelf.Signal = Signal:Connect(function(bool)
 			if not bool then
 				AudioInstance.Playing = false;
 				AudioInstance.TimePosition = 0;
 			end;
-			
+
 			TransManager:Fire(bool);
 		end);
-		
+
 		function AudioSelf:SetAudio(value)
 			if AudioInstance.SoundId ~= value then
 				AudioInstance.Playing = false;
 			end;
-			
+
 			AudioInstance.SoundId = value;
 		end
-		
+
 		function AudioSelf:SetVolume(value)
 			AudioInstance.Volume = value;
 		end
-		
+
 		function AudioSelf:SetSpeed(value)
 			AudioInstance.PlaybackSpeed = value;
 		end
-		
+
 		return AudioSelf;
 	end;
-	
+
 	return Inputs;
 end;
 
@@ -2842,21 +2850,21 @@ function Sealz:CreateToolTipHandler(UI: Frame, Text: string)
 	ToolTip.TextXAlignment = Enum.TextXAlignment.Left
 	ToolTip.TextYAlignment = Enum.TextYAlignment.Top
 	ToolTip.ZIndex = UI.ZIndex + 20;
-	
+
 	local size = Sealz:GetTextSize(ToolTip);
-	
+
 	ToolTip.Size = UDim2.new(0, size.X, 0, size.Y)
-	
+
 	local Hover,TH = false,nil;
-	
+
 	UI.MouseEnter:Connect(function()
 		if TH then
 			task.cancel(TH)
 			TH = nil
 		end;
-		
+
 		Hover = true;
-		
+
 		TH = task.spawn(function()
 			while Hover do task.wait()
 				local location = UserInputService:GetMouseLocation();
@@ -2867,16 +2875,16 @@ function Sealz:CreateToolTipHandler(UI: Frame, Text: string)
 			end;
 		end);
 	end);
-	
+
 	UI.MouseLeave:Connect(function()
 		if TH then
 			task.cancel(TH)
 			TH = nil
 		end;
-		
+
 		ToolTip.Visible = false;
 		ToolTip.Parent = nil;
-		
+
 		Hover = false;
 	end);
 end;
@@ -2884,11 +2892,11 @@ end;
 function Sealz:Regisiter(UI: Frame , Signal)
 	local IndexLayer = UI.ZIndex;
 	local Items = {};
-	
+
 	function Items:AddLabel(Name: string)
 		local LabelSelf = {};
 		local TransManager = Sealz.Transparent();
-		
+
 		local ItemFrame = Instance.new("Frame")
 		local TextLabel = Instance.new("TextLabel")
 		local UICorner = Instance.new("UICorner")
@@ -2904,7 +2912,7 @@ function Sealz:Regisiter(UI: Frame , Signal)
 		ItemFrame.BorderSizePixel = 0
 		ItemFrame.Size = UDim2.new(1, 0, 0, 30)
 		ItemFrame.ZIndex = IndexLayer + 1
-		
+
 		TextLabel.Parent = ItemFrame
 		TextLabel.AnchorPoint = Vector2.new(0, 0.5)
 		TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -2920,11 +2928,11 @@ function Sealz:Regisiter(UI: Frame , Signal)
 		TextLabel.TextTransparency = 0.45
 		TextLabel.TextXAlignment = Enum.TextXAlignment.Left
 		TextLabel.Text = Name;
-		
+
 		Sealz:AddHoverSignal(ItemFrame,"TextTransparency",0.2,0.45,TextLabel)
-		
+
 		TransManager:Add(TextLabel)
-		
+
 		UICorner.CornerRadius = UDim.new(0, 4)
 		UICorner.Parent = ItemFrame
 
@@ -2937,7 +2945,7 @@ function Sealz:Regisiter(UI: Frame , Signal)
 		LineFrame.Position = UDim2.new(0.5, 0, 1, 0)
 		LineFrame.Size = UDim2.new(1, -1, 0, 1)
 		LineFrame.ZIndex = IndexLayer + 4
-		
+
 		TransManager:Add(LineFrame)
 
 		InputsFrame.Name = "InputsFrame"
@@ -2950,7 +2958,7 @@ function Sealz:Regisiter(UI: Frame , Signal)
 		InputsFrame.Position = UDim2.new(1, -10, 0.5, 0)
 		InputsFrame.Size = UDim2.new(1, -10, 0, 25)
 		InputsFrame.ZIndex = IndexLayer + 3
-		
+
 		TransManager:Add(InputsFrame)
 
 		UIListLayout.Parent = InputsFrame
@@ -2959,39 +2967,39 @@ function Sealz:Regisiter(UI: Frame , Signal)
 		UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 		UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 		UIListLayout.Padding = UDim.new(0, 5)
-		
+
 		TransManager:Fire(Signal:Get(),true);
 		LabelSelf.Frame = ItemFrame;
-		
+
 		LabelSelf.Signal = Signal:Connect(function(bool)
 			TransManager:Fire(bool);
 		end);
-		
+
 		local Inputs = Sealz:CreateInputs(InputsFrame,Signal);
 		Inputs.Root = LabelSelf;
-		
+
 		function Inputs:SetText(new)
 			TextLabel.Text = new;
 		end;
-		
+
 		function Inputs:ToolTip(Text: string)
 			Sealz:CreateToolTipHandler(ItemFrame,Text);
-			
+
 			return Inputs;
 		end
-		
+
 		return Inputs;
 	end;
-	
+
 	function Items:AddImage(Config)
 		Config = Sealz:Format(Config,{
 			Image = "",
 			Type = "Crop", -- Crop , Fit , Stretch
 			Size = 150,
 		})
-		
+
 		local TransManager = Sealz.Transparent();
-		
+
 		local ImageSelf = {};
 		local ImageFrame = Instance.new("Frame")
 		local LineFrame = Instance.new("Frame")
@@ -3005,7 +3013,7 @@ function Sealz:Regisiter(UI: Frame , Signal)
 		ImageFrame.BorderSizePixel = 0
 		ImageFrame.Size = UDim2.new(1, 0, 0, Config.Size or 150)
 		ImageFrame.ZIndex = IndexLayer + 1
-		
+
 		TransManager:Add(ImageLabel)
 
 		LineFrame.Name = "LineFrame"
@@ -3017,9 +3025,9 @@ function Sealz:Regisiter(UI: Frame , Signal)
 		LineFrame.Position = UDim2.new(0.5, 0, 1, 0)
 		LineFrame.Size = UDim2.new(1, -1, 0, 1)
 		LineFrame.ZIndex = IndexLayer + 5
-		
+
 		TransManager:Add(LineFrame)
-		
+
 		ImageLabel.Parent = ImageFrame
 		ImageLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 		ImageLabel.BackgroundTransparency = 1.000
@@ -3029,26 +3037,26 @@ function Sealz:Regisiter(UI: Frame , Signal)
 		ImageLabel.ZIndex = IndexLayer + 2
 		ImageLabel.Image = Config.Image
 		ImageLabel.ScaleType = Enum.ScaleType[Config.Type or "Crop"]
-		
+
 		TransManager:Add(ImageLabel)
-		
+
 		TransManager:Fire(Signal:Get(),true);
-		
+
 		ImageSelf.Signal = Signal:Connect(function(bool)
 			TransManager:Fire(bool);
 		end);
-		
+
 		function ImageSelf:SetImage(image: string)
 			ImageLabel.Image = image;
 		end;
-		
+
 		function ImageSelf:SetSize(size)
 			ImageFrame.Size = UDim2.new(1, 0, 0, size or 150)
 		end;
-		
+
 		return ImageSelf;
 	end;
-	
+
 	return Items;
 end;
 
@@ -3068,7 +3076,7 @@ function Sealz:StartUp(UI: Frame)
 	StartUpSlide.AnchorPoint = Vector2.new(0.5,0.5);
 	StartUpSlide.Position = UDim2.fromScale(0.5,0.5);
 	StartUpSlide.ZIndex = 1000
-	
+
 	Sealz:Tween(StartUpSlide,ScaleTween,{
 		BackgroundTransparency = 0;
 		Size = UDim2.new(1, 0, 1, 0)
@@ -3080,7 +3088,7 @@ function Sealz:StartUp(UI: Frame)
 	UIGradient.Rotation = 45
 	UIGradient.Transparency = NumberSequence.new{NumberSequenceKeypoint.new(0.00, 1.00), NumberSequenceKeypoint.new(0.50, 1.00), NumberSequenceKeypoint.new(0.50, 0.00), NumberSequenceKeypoint.new(1.00, 0.00)}
 	UIGradient.Parent = StartUpSlide
-	
+
 	task.delay(0.5,function()
 		Sealz:Tween(UIGradient,TweenInfo.new(2,Enum.EasingStyle.Quint,Enum.EasingDirection.InOut),{
 			Offset = Vector2.new(1, 0)
@@ -3088,7 +3096,7 @@ function Sealz:StartUp(UI: Frame)
 			StartUpSlide:Destroy();
 		end)
 	end);
-	
+
 	task.wait(0.5)
 end;
 
@@ -3134,7 +3142,7 @@ function Sealz:EncodeData(data)
 				b = data.Name,
 			};
 		end;
-		
+
 		warn('invalid enum type')
 	elseif typeof(data) == "nil" then
 		return {
@@ -3170,18 +3178,18 @@ function Sealz.new(config)
 		OnStartUp = true,
 		Size = UDim2.new(0, 640, 0, 480)
 	});
-	
+
 	config.Keybind = config.Keybind;
-	
+
 	local winSelf = {
 		Signal = CreateSignal(true),
 		Keybind = config.Keybind
 	};
-	
+
 	if not isfolder(config.Path) then
 		makefolder(config.Path);
 	end;
-	
+
 	local MainFrame = Instance.new("Frame")
 	local UIScale = Instance.new("UIScale")
 	local UICorner = Instance.new("UICorner")
@@ -3202,71 +3210,89 @@ function Sealz.new(config)
 	local ContainerTabFrame = Instance.new("Frame")
 	local UIStroke = Instance.new("UIStroke")
 	local UIShadow = Instance.new("UIShadow")
-	
+
 	local WindowTransparent = Sealz.Transparent();
 	
+	-- Save config
 	function winSelf:Save(Delay: boolean)
 		local Data = {
 			time = tick(),
 			data = {},
 		};
-
+		
+		local count = 1;
 		for i,v in next , Sealz.Flags do
 			if Delay then
-				if i % 50 == 1 then
+				if count % 50 == 1 then
 					task.wait();
 				end;
+				
+				count += 1;
 			end;
-			
+
 			local value = v:GetValue();
 			local encoded = Sealz:EncodeData(value)
-			
+
 			Data.data[i] = encoded;
 		end;
-		
+
 		local JSON = HttpService:JSONEncode(Data);
 
 		table.clear(Data);
-		
+
 		writefile(config.Path..'/config.json',JSON);
-		
+
 		return true;
 	end;
 	
-	function winSelf:Load(Path)
+	-- load config from path
+	function winSelf:Load(Path: string)
 		Path = Path or config.Path..'/config.json';
-		
+
 		if not isfile(Path) then
 			return;
 		end;
-		
+
 		local DATA = HttpService:JSONDecode(readfile(Path));
-		
+
 		for i,v in next , DATA.data do
 			local data = Sealz.Flags[i];
-			
+
 			task.spawn(data.SetValue,data,Sealz:DecodeData(v))
 		end;
-		
+
 		return true
 	end;
 	
+	-- Load config from string
+	function winSelf:LoadFromString(JSON: string)
+		local DATA = HttpService:JSONDecode(JSON);
+
+		for i,v in next , DATA.data do
+			local data = Sealz.Flags[i];
+
+			task.spawn(data.SetValue,data,Sealz:DecodeData(v))
+		end;
+
+		return true
+	end;
+
 	function winSelf:AutoSave()
 		return task.spawn(function()
 			while true do task.wait(5);
 				if winSelf.Signal:Get() then
-					winSelf:Save()
+					winSelf:Save(true)
 				end;
 			end;
 		end)
 	end;
-	
+
 	UIShadow.Transparency = 0.500
 	UIShadow.BlurRadius = UDim.new(0, 20)
 	UIShadow.Parent = MainFrame;
-	
+
 	WindowTransparent:Add(UIShadow)
-	
+
 	MainFrame.Name = "MainFrame"
 	MainFrame.Active = true
 	MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -3278,9 +3304,9 @@ function Sealz.new(config)
 	MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 	MainFrame.Size = config.Size
 	MainFrame.Parent = Sealz.ScreenGui;
-	
+
 	Sealz:AddVisibleSignal(MainFrame,"BackgroundTransparency",0.95,true)
-	
+
 	WindowTransparent:Add(MainFrame,{
 		BackgroundTransparency = 0.1
 	})
@@ -3288,7 +3314,7 @@ function Sealz.new(config)
 	UIScale.Parent = MainFrame
 	UICorner.Parent = MainFrame
 	UIScale.Scale = config.Scale;
-	
+
 	TopFrame.Name = "TopFrame"
 	TopFrame.Parent = MainFrame
 	TopFrame.BackgroundColor3 = Color3.fromRGB(33, 33, 33)
@@ -3297,12 +3323,12 @@ function Sealz.new(config)
 	TopFrame.BorderSizePixel = 0
 	TopFrame.Size = UDim2.new(1, 0, 0, 40)
 	TopFrame.ZIndex = 15
-	
+
 	WindowTransparent:Add(TopFrame)
-	
+
 	Sealz:AddDrag(TopFrame,MainFrame,0.2);
 	Sealz:AddBlurring(MainFrame,winSelf.Signal)
-	
+
 	UICorner_2.Parent = TopFrame
 
 	MenuTitle.Name = "MenuTitle"
@@ -3322,7 +3348,7 @@ function Sealz.new(config)
 	MenuTitle.TextTransparency = 0.100
 	MenuTitle.TextXAlignment = Enum.TextXAlignment.Left
 	WindowTransparent:Add(MenuTitle)
-	
+
 	MenuDesc.Name = "MenuDesc"
 	MenuDesc.Parent = TopFrame
 	MenuDesc.AnchorPoint = Vector2.new(0, 0.5)
@@ -3340,7 +3366,7 @@ function Sealz.new(config)
 	MenuDesc.TextTransparency = 0.500
 	MenuDesc.TextXAlignment = Enum.TextXAlignment.Left
 	WindowTransparent:Add(MenuDesc)
-	
+
 	TabButtons.Name = "TabButtons"
 	TabButtons.Parent = TopFrame
 	TabButtons.AnchorPoint = Vector2.new(1, 0.5)
@@ -3369,7 +3395,7 @@ function Sealz.new(config)
 	LineFollower.Size = UDim2.new(0, 50, 0, 2)
 	LineFollower.ZIndex = 25
 	WindowTransparent:Add(LineFollower)
-	
+
 	BottomFrame.Name = "BottomFrame"
 	BottomFrame.Parent = MainFrame
 	BottomFrame.AnchorPoint = Vector2.new(0, 1)
@@ -3381,7 +3407,7 @@ function Sealz.new(config)
 	BottomFrame.Size = UDim2.new(1, 0, 0, 25)
 	BottomFrame.ZIndex = 45
 	WindowTransparent:Add(BottomFrame)
-	
+
 	UICorner_3.Parent = BottomFrame
 
 	ToolsFrame.Name = "ToolsFrame"
@@ -3395,12 +3421,12 @@ function Sealz.new(config)
 	ToolsFrame.Size = UDim2.new(1, -10, 1, 0)
 	ToolsFrame.ZIndex = 46
 	WindowTransparent:Add(ToolsFrame)
-	
+
 	UIListLayout_2.Parent = ToolsFrame
 	UIListLayout_2.FillDirection = Enum.FillDirection.Horizontal
 	UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
 	UIListLayout_2.VerticalAlignment = Enum.VerticalAlignment.Center
-	
+
 	UIListLayout_3.Parent = ScrollingFrame
 	UIListLayout_3.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	UIListLayout_3.SortOrder = Enum.SortOrder.LayoutOrder
@@ -3417,46 +3443,48 @@ function Sealz.new(config)
 	ContainerTabFrame.Position = UDim2.new(0.5, 0, 0.5, 10)
 	ContainerTabFrame.Size = UDim2.new(1, -5, 1, -85)
 	WindowTransparent:Add(ContainerTabFrame)
-	
+
 	UIStroke.Color = Color3.fromRGB(34, 34, 34)
 	UIStroke.Parent = MainFrame
 	WindowTransparent:Add(UIStroke)
-	
+
 	WindowTransparent:Fire(false,true);
-	
+
 	winSelf.Signal:Connect(function(bool)
 		WindowTransparent:Fire(bool);
 	end);
-	
+
 	function winSelf:SetKeybind(Key: Enum.KeyCode)
 		winSelf.Keybind = Key;
 	end;
-	
+
 	function winSelf:SetSize(UD: UDim2)
 		Sealz:Tween(MainFrame,ScaleTween,{
 			Size = UD;
 		});
 		
-		winSelf.Menu.EventChange:Fire()
+		task.delay(0.5,function()
+			winSelf.Menu.EventChange:Fire()
+		end)
 	end;
-	
+
 	function winSelf:ForceCenter()
 		Sealz:Tween(MainFrame,ScaleTween,{
 			Position = UDim2.fromScale(0.5,0.5)
 		})
 	end;
-	
+
 	winSelf.Menu = {
 		CurrentIndex = nil,
 		Menu = {},
 		EventChange = CreateSignal();
 	};
-	
+
 	winSelf.Runtime = task.spawn(function()
 		local Refresh = function()
 			if winSelf.Menu.CurrentIndex and winSelf.Menu.Menu and winSelf.Menu.Menu[winSelf.Menu.CurrentIndex] then
 				local CurrentScale = UIScale.Scale;
-				
+
 				if CurrentScale ~= 1 then
 					LineFollower.Visible = false;
 				else
@@ -3473,22 +3501,22 @@ function Sealz.new(config)
 				end;
 			end;
 		end;
-		
+
 		while true do 
 			Refresh();
-			
+
 			winSelf.Menu.EventChange:Wait();
 		end;
 	end);
-	
+
 	function winSelf:AddMenu(Config)
 		Config = Sealz:Format(Config , {
 			Name = "Menu"
 		});
-		
+
 		local MenuSelf = {};
 		local TabSignal = CreateSignal(false);
-		
+
 		local Frame = Instance.new("Frame")
 		local UICorner = Instance.new("UICorner")
 		local TextLabel = Instance.new("TextLabel")
@@ -3500,9 +3528,9 @@ function Sealz.new(config)
 		Frame.BorderSizePixel = 0
 		Frame.Size = UDim2.new(0, 100, 0, 24)
 		Frame.ZIndex = 22
-		
+
 		MenuSelf.BthRoot = Frame;
-		
+
 		local bthf = WindowTransparent:Add(Frame);
 
 		UICorner.CornerRadius = UDim.new(0, 4)
@@ -3522,22 +3550,22 @@ function Sealz.new(config)
 		TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 		TextLabel.TextSize = 11.000
 		TextLabel.TextTransparency = 0.100
-		
+
 		MenuSelf.Update = function()
 			local size = Sealz:GetTextSize(TextLabel);
-			
+
 			Frame.Size = UDim2.new(0, size.X + 20, 0, 24)
 		end;
-		
+
 		MenuSelf.Update()
-		
+
 		local bthb = WindowTransparent:Add(TextLabel);
-		
+
 		local OnUpdate = function(bool)
 			if not winSelf.Signal:Get() then
 				return;	
 			end;
-			
+
 			pcall(MenuSelf.Update);
 
 			if bool then
@@ -3565,16 +3593,16 @@ function Sealz.new(config)
 				bthb("TextTransparency",0.5)
 			end
 		end;
-		
+
 		TabSignal:Connect(OnUpdate);
-		
+
 		local BIndex = #winSelf.Menu.Menu + 1;
-		
+
 		MenuSelf.Signal = TabSignal;
-		
+
 		MenuSelf.Activated = Sealz:AddInput(Frame,function()
 			winSelf.Menu.CurrentIndex = BIndex;
-			
+
 			for i,v in next , winSelf.Menu.Menu do
 				if i == BIndex then
 					v.Signal:Fire(true);
@@ -3582,13 +3610,13 @@ function Sealz.new(config)
 					v.Signal:Fire(false);
 				end;
 			end;
-			
+
 			winSelf.Menu.EventChange:Fire()
 		end);
-		
+
 		local TabFrame = Instance.new("Frame")
 		local UIListLayout = Instance.new("UIListLayout")
-		
+
 
 		TabFrame.Name = "TabFrame"
 		TabFrame.Parent = ContainerTabFrame
@@ -3600,7 +3628,7 @@ function Sealz.new(config)
 		TabFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 		TabFrame.Size = UDim2.new(1, -5, 1, -5)
 		TabFrame.ZIndex = 35
-		
+
 		if not winSelf.Menu.CurrentIndex then
 			winSelf.Menu.CurrentIndex = 1;
 			TabSignal:Fire(true);
@@ -3611,7 +3639,7 @@ function Sealz.new(config)
 			TabFrame.Visible = false;
 			TabFrame.Parent = nil;
 		end;
-		
+
 		TabSignal:Connect(function(bool)
 			if bool then
 				TabFrame.Visible = true;
@@ -3633,8 +3661,8 @@ function Sealz.new(config)
 		UIListLayout.VerticalFlex = Enum.UIFlexAlignment.Fill
 		UIListLayout.HorizontalFlex = Enum.UIFlexAlignment.Fill
 		UIListLayout.Padding = UDim.new()
-		
-		
+
+
 		function MenuSelf:AddTab()
 			local TabSelf = {};
 			local ScrollingFrame = Instance.new("ScrollingFrame")
@@ -3659,19 +3687,19 @@ function Sealz.new(config)
 			UIListLayout.Padding = UDim.new(0, 10)
 			UIListLayout.VerticalFlex = Enum.UIFlexAlignment.Fill
 
-			
+
 			TabSelf.ListSignal = UIListLayout:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(function()
 				if UIListLayout.AbsoluteContentSize.Y >= (ScrollingFrame.AbsoluteSize.Y * 2) then
 					ScrollingFrame.CanvasSize = UDim2.fromOffset(0,UIListLayout.AbsoluteContentSize.Y / 1.5);
 				end;
 			end);
-			
+
 			TabSelf.SectionCount = 0;
-			
+
 			function TabSelf:AddSection(Name: string)
 				local TransManager = Sealz.Transparent();
 				local SectionSelf = {};
-				
+
 				local SectionFrame = Instance.new("Frame")
 				local UICorner = Instance.new("UICorner")
 				local HeaderFrame = Instance.new("Frame")
@@ -3692,9 +3720,9 @@ function Sealz.new(config)
 				SectionFrame.BorderSizePixel = 0
 				SectionFrame.Size = UDim2.new(1, -7, 0, 150)
 				SectionFrame.ZIndex = 37
-				
+
 				TransManager:Add(SectionFrame)
-				
+
 				UICorner.Parent = SectionFrame
 
 				HeaderFrame.Name = "HeaderFrame"
@@ -3760,27 +3788,27 @@ function Sealz.new(config)
 				ScrollingFrameInner.ScrollBarImageColor3 = Sealz.AccentColor;
 				ScrollingFrameInner.ScrollBarThickness = 1
 				ScrollingFrameInner.TopImage = ""
-				
+
 				TransManager:Add(ScrollingFrameInner);
-				
+
 				Sealz:SET_SCROLLING(ScrollingFrameInner,UIListLayout);
-				
+
 				UIListLayout.Parent = ScrollingFrameInner
 				UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 				UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
 				UIStroke.Color = Color3.fromRGB(34, 34, 34)
 				UIStroke.Parent = SectionFrame
-				
+
 				TransManager:Add(UIStroke)
-				
+
 				local CurrentSectionCount = TabSelf.SectionCount;
 				SectionSelf.Signal = TabSignal:Connect(function(bool)
 					TransManager:Fire(bool)
 				end);
-				
+
 				TabSelf.SectionCount += 1;
-				
+
 				SectionSelf.WinSignal = winSelf.Signal:Connect(function(bool)
 					if bool then
 						if winSelf.Menu.CurrentIndex == BIndex then
@@ -3790,23 +3818,23 @@ function Sealz.new(config)
 						TabSignal:Fire(bool)
 					end;
 				end);
-				
+
 				local Reg = Sealz:Regisiter(ScrollingFrameInner,TabSignal);
 				Reg.Section = SectionSelf;
-				
+
 				return Reg;
 			end;
-			
+
 			return TabSelf;
 		end;
-		
+
 		table.insert(winSelf.Menu.Menu,MenuSelf);
-		
+
 		winSelf.Menu.EventChange:Fire()
-		
+
 		return MenuSelf;
 	end;
-	
+
 	function winSelf:AddTool(Icon: string)
 		local ToolButton = Instance.new("TextButton")
 
@@ -3823,16 +3851,16 @@ function Sealz.new(config)
 		ToolButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 		ToolButton.TextSize = 13.000
 		ToolButton.TextTransparency = 0.500
-		
+
 		WindowTransparent:Add(ToolButton);
 		Sealz:AddHoverSignal(ToolButton,"TextTransparency",0.25);
-		
+
 		local toolSelf = {
 			Signal = CreateSignal(false)	
 		};
-		
+
 		local TransManager = Sealz.Transparent();
-		
+
 		local ToolFrame = Instance.new("Frame")
 		local UIShadow = Instance.new("UIShadow")
 		local UICorner = Instance.new("UICorner")
@@ -3852,14 +3880,14 @@ function Sealz.new(config)
 		ToolFrame.Size = UDim2.new(0, 450, 0, 300)
 		ToolFrame.ZIndex = 300
 		ToolFrame.Visible = false;
-		
+
 		TransManager:Add(ToolFrame)
 		Sealz:AddVisibleSignal(ToolFrame,'BackgroundTransparency',0.95,true);
 
 		UIShadow.Transparency = 0.500
 		UIShadow.BlurRadius = UDim.new(0, 20)
 		UIShadow.Parent = ToolFrame
-		
+
 		TransManager:Add(UIShadow)
 
 		UICorner.Parent = ToolFrame
@@ -3876,76 +3904,76 @@ function Sealz.new(config)
 		ScrollingFrame.Size = UDim2.new(1, -5, 1, -5)
 		ScrollingFrame.ZIndex = 308
 		ScrollingFrame.ScrollBarThickness = 0
-		
+
 		Sealz:SET_SCROLLING(ScrollingFrame , UIListLayout);
 		TransManager:Add(ScrollingFrame);
-		
+
 		UIListLayout.Parent = ScrollingFrame
 		UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 		UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-		
+
 		TransManager:Fire(false);
-		
+
 		toolSelf.Signal:Connect(function(bool)
 			TransManager:Fire(bool);
 		end);
-		
+
 		toolSelf.clear_signal = function()
 			if toolSelf.OnOverFrame then
 				toolSelf.OnOverFrame:Disconnect();
 			end;
 		end;
-		
+
 		ToolButton.Activated:Connect(function()
 			toolSelf.clear_signal();
-			
+
 			toolSelf.Signal:Toggle();
-			
+
 			toolSelf.OnOverFrame = UserInputService.InputBegan:Connect(Sealz:OnOverFrame(ToolFrame , function()
 				toolSelf.clear_signal();
-				
+
 				toolSelf.Signal:Fire(false);
 			end));
 		end);
-		
+
 		Sealz:SET_CONNECT(winSelf.Signal , toolSelf.Signal);
-		
+
 		local Items = Sealz:Regisiter(ScrollingFrame,toolSelf.Signal)
-		
+
 		Items.Root = toolSelf;
-		
+
 		return Items;
 	end;
-	
+
 	function winSelf:Toggle()
 		winSelf.Signal:Toggle();
 	end;
-	
+
 	WindowTransparent:Fire(true);
-	
+
 	winSelf.WindowInput = UserInputService.InputBegan:Connect(function(Key,Processed)
 		if not Processed and (Key.KeyCode == winSelf.Keybind or Key.KeyCode.Name == winSelf.Keybind) then
 			winSelf:Toggle()
 		end;
 	end);
-	
+
 	function winSelf:GetScale()
-		
+
 		return UIScale.Scale
 	end
-	
+
 	function winSelf:SetScale(d)
 		winSelf.Menu.EventChange:Fire();
-		
+
 		Sealz:Tween(UIScale,BasedTween, {
 			Scale = d or 1;
 		})
 	end
-	
+
 	if config.OnStartUp then
 		Sealz:StartUp(MainFrame);
 	end
-	
+
 	return winSelf;
 end;
 
@@ -3966,15 +3994,17 @@ function Sealz.Indicator()
 	UIListLayout.Parent = IndicatorFrame
 	UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	UIListLayout.Padding = UDim.new(0, 7)
-	
+	UIListLayout.Padding = UDim.new(0, 0)
+
 	local Indicator = {};
+	local Order = 0;
 	
 	Indicator.Root = IndicatorFrame;
-	
+
 	Indicator.new = function(icon: string,name: string,color: Color3 | string)
-		
-		local Layout = #IndicatorFrame:GetChildren() + 1
+
+		local Layout = Order + 1;
+		local PadLayout = Order + 2;
 		local TransManager = Sealz.Transparent();
 		local IndicatorItem = Instance.new("Frame")
 		local UICorner = Instance.new("UICorner")
@@ -3984,17 +4014,25 @@ function Sealz.Indicator()
 		local UIGradient = Instance.new("UIGradient")
 		local Icon = Instance.new("TextLabel")
 		local Text = Instance.new("TextLabel")
-
+		local Padding = Instance.new('Frame')
+		
+		Order += 5;
+		
+		Padding.LayoutOrder = PadLayout;
+		Padding.BackgroundTransparency = 1;
+		Padding.Size = UDim2.fromOffset(0,0)
+		Padding.Parent = IndicatorFrame
+		
 		IndicatorItem.Name = "IndicatorItem"
 		IndicatorItem.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
 		IndicatorItem.BackgroundTransparency = 0.250
 		IndicatorItem.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		IndicatorItem.BorderSizePixel = 0
-		IndicatorItem.Size = UDim2.new(0, 0, 0, 35)
+		IndicatorItem.Size = UDim2.new(0, 0, 0, 0)
 		IndicatorItem.ClipsDescendants = true;
 		IndicatorItem.ZIndex = -4
-		IndicatorFrame.LayoutOrder = Layout;
-		
+		IndicatorItem.LayoutOrder = Layout;
+
 		TransManager:Add(IndicatorItem)
 
 		UICorner.CornerRadius = UDim.new(0, 10)
@@ -4004,7 +4042,7 @@ function Sealz.Indicator()
 		UIShadow.BlurRadius = UDim.new(0, 20)
 		UIShadow.Parent = IndicatorItem
 		TransManager:Add(UIShadow);
-		
+
 		ColroFrame.Name = "ColroFrame"
 		ColroFrame.Parent = IndicatorItem
 		ColroFrame.AnchorPoint = Vector2.new(0, 0.5)
@@ -4017,7 +4055,7 @@ function Sealz.Indicator()
 		ColroFrame.SizeConstraint = Enum.SizeConstraint.RelativeYY
 		ColroFrame.ZIndex = -3
 		TransManager:Add(ColroFrame);
-		
+
 		UICorner_2.CornerRadius = UDim.new(0, 10)
 		UICorner_2.Parent = ColroFrame
 
@@ -4057,44 +4095,68 @@ function Sealz.Indicator()
 		Text.TextXAlignment = Enum.TextXAlignment.Left
 		Text.ZIndex = -2
 		TransManager:Add(Text);
-		
+
 		TransManager:Fire(false,true);
-		
+
 		IndicatorItem.Parent = IndicatorFrame
-		
+
 		local IndiItem = {};
-		
+
 		IndiItem.Update = function()
-			local size = Sealz:GetTextSize(Text);
+			if IndiItem.delay_thread then
+				pcall(task.cancel,IndiItem.delay_thread);	
+			end;
 			
+			local size = Sealz:GetTextSize(Text);
+
 			Sealz:Tween(IndicatorItem,BasedTween,{
 				Size = UDim2.new(0, size.X + 45, 0, 35)
 			});
 			
+			Sealz:Tween(Padding,ScaleTween,{
+				Size = UDim2.new(0, 0, 0, 7)
+			})
+
 			return true
 		end;
-		
+
 		IndiItem.Hide = function()
+			if IndiItem.delay_thread then
+				pcall(task.cancel,IndiItem.delay_thread);	
+			end;
+			
 			Sealz:Tween(IndicatorItem,BasedTween,{
 				Size = UDim2.new(0, 0, 0, 35)
 			});
 			
+			Sealz:Tween(Padding,ScaleTween,{
+				Size = UDim2.new(0, 0, 0, 0)
+			})
+			
+			IndiItem.delay_thread = task.delay(BasedTween.Time / 1.2,function()
+				if IndicatorItem.AbsoluteSize.X < 5 then
+					Sealz:Tween(IndicatorItem,BasedTween,{
+						Size = UDim2.new(0, 0, 0, 0)
+					});
+				end;
+			end)
+
 			return true;
 		end;
-		
+
 		function IndiItem:SetText(TextStr: string)
 			Text.Text = TextStr;
-			
+
 			if IndiItem.Visible then
 				IndiItem.Update();
 			end
 		end
-		
+
 		function IndiItem:SetColor(color: string | Color3)
 			if typeof(color) == "string" then
 				color = Sealz.ColorMode[color] or Sealz.ColorMode.Red;	
 			end;
-			
+
 			Sealz:Tween(ColroFrame,BasedTween,{
 				BackgroundColor3 = color
 			});
@@ -4106,41 +4168,43 @@ function Sealz.Indicator()
 			Sealz:Tween(Icon,BasedTween,{
 				TextColor3 = color
 			});
-			
+
 			if IndiItem.Visible then
 				IndiItem.Update();
 			end
 		end;
-		
+
 		IndiItem.Visible = false;
-		
+
 		function IndiItem:Render(bool)
 			if IndiItem.Visible == bool then
 				return;
 			end;
 			
+			if IndiItem.delay_thread then
+				pcall(task.cancel,IndiItem.delay_thread);	
+			end;
+
 			IndiItem.Visible = bool;
-			
+
 			TransManager:Fire(bool);
-			
+
 			return (bool and IndiItem.Update()) or IndiItem.Hide()
 		end;
-		
-		IndiItem.Update();
-		
+
 		if color then
 			IndiItem:SetColor(color);
 		end;
-		
+
 		return IndiItem;
 	end;
-	
+
 	return Indicator;
 end;
 
 function Sealz.Watermark(Position: string)
 	Position = Position or 2;
-	
+
 	if Position == 1 then
 		Position = "Left"
 	elseif Position == 2 then
@@ -4148,11 +4212,11 @@ function Sealz.Watermark(Position: string)
 	elseif Position == 3 then
 		Position = "Right"
 	end
-	
+
 	local TransManager = Sealz.Transparent();
 	local WatermarkSelf = {};
 	local BasedWatermarkLayer = 500;
-	
+
 	local WatermarkFrame = Instance.new("Frame")
 	local UICorner = Instance.new("UICorner")
 	local UIShadow = Instance.new("UIShadow")
@@ -4170,7 +4234,7 @@ function Sealz.Watermark(Position: string)
 	WatermarkFrame.Size = UDim2.new(0, 0, 0, 20)
 	WatermarkFrame.ClipsDescendants = true;
 	WatermarkFrame.ZIndex = BasedWatermarkLayer;
-	
+
 	TransManager:Add(WatermarkFrame);
 
 	UICorner.CornerRadius = UDim.new(0, 5)
@@ -4179,24 +4243,24 @@ function Sealz.Watermark(Position: string)
 	UIShadow.Transparency = 0.500
 	UIShadow.BlurRadius = UDim.new(0, 20)
 	UIShadow.Parent = WatermarkFrame
-	
+
 	TransManager:Add(UIShadow);
-	
+
 	UIListLayout.Parent = WatermarkFrame
 	UIListLayout.FillDirection = Enum.FillDirection.Horizontal
 	UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	UIListLayout.Padding = UDim.new(0, 2)
-	
+
 	WatermarkSelf.OnUpdate = UIListLayout:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(function()
 		Sealz:Tween(WatermarkFrame,BasedTween, {
 			Size = UDim2.new(0, UIListLayout.AbsoluteContentSize.X + 10, 0, 20)
 		})
 	end);
-	
+
 	UIScale.Parent = WatermarkFrame
-	
+
 	function WatermarkSelf:SetPosition(Position)
 		if Position == 1 then
 			Position = "Left"
@@ -4205,7 +4269,7 @@ function Sealz.Watermark(Position: string)
 		elseif Position == 3 then
 			Position = "Right"
 		end
-		
+
 		if Position == "Left" then
 			Sealz:Tween(WatermarkFrame,BasedTween, {
 				AnchorPoint = Vector2.new(0, 0),
@@ -4223,13 +4287,13 @@ function Sealz.Watermark(Position: string)
 			})
 		end;
 	end;
-	
+
 	WatermarkSelf:SetPosition(Position)
-	
+
 	local CurrentLayout = 1;
 	function WatermarkSelf.new(IconStr: string,TextStr: string)
 		local WatermarkItemSelf = {};
-		
+
 		local Layout = CurrentLayout;
 		local Block = Instance.new("Frame")
 		local Icon = Instance.new("TextLabel")
@@ -4279,20 +4343,20 @@ function Sealz.Watermark(Position: string)
 		Text.ZIndex = BasedWatermarkLayer + 3
 		Text.TextXAlignment = Enum.TextXAlignment.Left
 		TransManager:Add(Text);
-		
+
 		WatermarkItemSelf.Update = function()
 			local size = Sealz:GetTextSize(Text);
 			Sealz:Tween(Block,BasedTween,{
 				Size = UDim2.new(0, size.X + 30, 0, 15)
 			})
 		end
-		
+
 		function WatermarkItemSelf:SetIcon(icon: string)
 			Icon.Text = icon;
-			
+
 			WatermarkItemSelf.Update();
 		end;
-		
+
 		function WatermarkItemSelf:SetText(str: string)
 			Text.Text = str;
 
@@ -4302,12 +4366,12 @@ function Sealz.Watermark(Position: string)
 		function WatermarkItemSelf:Render(bool: Boolean)
 			Block.Visible = bool;
 		end;
-		
+
 		WatermarkItemSelf.Update();
-		
+
 		return WatermarkItemSelf;
 	end;
-	
+
 	function WatermarkSelf:AddButton(Name: string ,Callback: ()->any)
 		local CurrentLayoutrd = CurrentLayout;
 		local Button = Instance.new("Frame")
@@ -4343,32 +4407,32 @@ function Sealz.Watermark(Position: string)
 		Text.TextColor3 = Color3.fromRGB(255, 255, 255)
 		Text.TextTransparency = 0.500
 		Text.ZIndex = BasedWatermarkLayer + 2
-		
+
 		Sealz:AddHoverSignal(Button , "TextTransparency" , 0.25 , 0.5 ,Text)
-		
+
 		local size = Sealz:GetTextSize(Text);
-		
+
 		Button.Size = UDim2.new(0, size.X + 10, 0, 15)
-		
+
 		TransManager:Add(Text);
 
 		UICorner.CornerRadius = UDim.new(0, 5)
 		UICorner.Parent = Button
-		
+
 		Sealz:AddInput(Button,Callback)
 	end;
-	
+
 	WatermarkSelf.Visible = true;
 	function WatermarkSelf:Render(bool)
 		if WatermarkSelf.Visible == bool then
 			return
 		end;
-		
+
 		WatermarkSelf.Visible = bool;
-		
+
 		TransManager:Fire(WatermarkSelf.Visible);
 	end
-	
+
 	return WatermarkSelf;
 end;
 
@@ -4388,11 +4452,11 @@ function Sealz.Logger()
 	UIListLayout.Parent = NotificationFrame
 	UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	UIListLayout.Padding = UDim.new(0,7)
-	
+
 	return {
 		new = function(text: string , duration: number)
 			duration = duration or 5;
-			
+
 			local LogItem = Instance.new("Frame")
 			local UICorner = Instance.new("UICorner")
 			local UIShadow = Instance.new("UIShadow")
@@ -4449,16 +4513,16 @@ function Sealz.Logger()
 			Text.TextSize = 10.000
 			Text.TextXAlignment = Enum.TextXAlignment.Left
 			Text.TextYAlignment = Enum.TextYAlignment.Top
-			
+
 			local update = function()
 				local size = Sealz:GetTextSize(Text);
 				Sealz:Tween(LogItem,BasedTween,{
 					Size = UDim2.new(0, size.X + 35, 0, size.Y + 10);
 				});
 			end
-			
+
 			update();
-			
+
 			task.delay(duration,function()
 				Sealz:Tween(LogItem,BasedTween,{
 					Size = UDim2.new(0, 0, 0, LogItem.AbsoluteSize.Y);
