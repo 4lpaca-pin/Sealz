@@ -113,7 +113,7 @@ Sealz.import = function(url: string , module: string)
 
 		return loadstring(game:HttpGet(url))();
 	end)
-	
+
 	return (a and b) or require(script:FindFirstChild(module));
 end;
 
@@ -156,7 +156,7 @@ Sealz.IsMobile = UserInputService.TouchEnabled;
 
 function Sealz:GetTimeString(a)
 	local OsTime = os.date("*t",a);
-	
+
 	return string.format("%d:%d:%d",OsTime.hour,OsTime.min,OsTime.sec)
 end;
 
@@ -1147,7 +1147,27 @@ function Sealz:CreateDropdown(Core)
 		if DropdownSelf.OnOverFrame then
 			DropdownSelf.OnOverFrame:Disconnect()
 		end
-	end
+	end;
+	
+	DropdownSelf.SetSearchBar = function()
+		local currentItem = #ScrollingFrame:GetChildren() - 3;
+		
+		if currentItem > 10 then
+			DropdownSelf.SearchEnabled = true;
+			
+			TextBox.Text = "";
+			TextBox.Visible = true;
+			ScrollingFrame.Position = UDim2.new(0.5, 0, 0, 40)
+			ScrollingFrame.Size = UDim2.new(1, -20, 1, -50)
+		else
+			DropdownSelf.SearchEnabled = false;
+			
+			TextBox.Text = "";
+			TextBox.Visible = false;
+			ScrollingFrame.Position = UDim2.new(0.5,0,0,10);
+			ScrollingFrame.Size = UDim2.new(1,-20,1,-20);
+		end;
+	end;
 
 	DropdownSelf.ItemTransManager = Sealz.Transparent();
 
@@ -1194,9 +1214,9 @@ function Sealz:CreateDropdown(Core)
 		DropdownSelf.ClearOnOverFrame();
 
 		DropdownSelf.Visible = true;
-		
-		TextBox.Text = "";
-		
+
+		DropdownSelf.SetSearchBar();
+
 		TransManager:Fire(true);
 
 		DropdownSelf.ItemTransManager:Fire(true);
@@ -1205,7 +1225,8 @@ function Sealz:CreateDropdown(Core)
 
 		DropdownSelf.RuntimeThread = task.spawn(function()
 			while DropdownSelf.Visible do task.wait()
-				local SizeY = math.clamp(UIListLayout.AbsoluteContentSize.Y + 50, 100,255);
+				local Extra = (DropdownSelf.SearchEnabled and 50) or 25;
+				local SizeY = math.clamp(UIListLayout.AbsoluteContentSize.Y + Extra, 25,255);
 
 
 				Sealz:Tween(DropdownHandlerFrame,BasedTween,{
@@ -1470,6 +1491,8 @@ function Sealz:CreateBlockWindow(Core)
 	BlockHandlerFrame.BorderSizePixel = 0
 	BlockHandlerFrame.Size = UDim2.new(0, 175, 0, 50)
 	BlockHandlerFrame.ZIndex = IndexLayer + 200
+	BlockHandlerFrame.ClipsDescendants = true;
+	BlockHandlerFrame.AnchorPoint = Vector2.new(0,0);
 
 	TransManager:Add(BlockHandlerFrame)
 	Sealz:AddVisibleSignal(BlockHandlerFrame,'BackgroundTransparency',0.95,true,Sealz.ScreenGui);
@@ -1490,12 +1513,16 @@ function Sealz:CreateBlockWindow(Core)
 	UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
 	TransManager:Fire(false,true);
-
+	
+	local UIScale = Instance.new('UIScale',BlockHandlerFrame);
+	
+	UIScale.Scale = 0;
+	
 	BlockSelf.SetSize = function()
-		BlockHandlerFrame.Size = UDim2.new(0, 295, 0, UIListLayout.AbsoluteContentSize.Y)
-
-		return UIListLayout.AbsoluteContentSize.Y;
+		BlockHandlerFrame.Size = UDim2.new(0, 250, 0, UIListLayout.AbsoluteContentSize.Y)
 	end;
+	
+	UIListLayout:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(BlockSelf.SetSize);
 
 	BlockSelf.ClearOnOverFrame = function()
 		if BlockSelf.OnOverFrame then
@@ -1504,15 +1531,23 @@ function Sealz:CreateBlockWindow(Core)
 	end;
 
 	BlockSelf.Wake = function()
+		Sealz:Tween(UIScale,ScaleTween,{
+			Scale = 1
+		});
+		
 		BlockSelf.ClearOnOverFrame();
 
 		TransManager:Fire(true);
 
 		BlockSelf.Signal:Fire(true);
-
-		BlockHandlerFrame.Position = UDim2.fromOffset(Root.AbsolutePosition.X + 25, Root.AbsolutePosition.Y + (Root.AbsoluteSize.Y) + (BlockSelf.SetSize() / 2))
+		
+		BlockHandlerFrame.Position = UDim2.fromOffset(Root.AbsolutePosition.X + (Root.AbsoluteSize.X / 2) + 15, Root.AbsolutePosition.Y + (Root.AbsoluteSize.Y / 2) + Sealz.InsetSize)
 
 		BlockSelf.OnOverFrame = UserInputService.InputBegan:Connect(Sealz:OnOverFrame(BlockHandlerFrame,function()
+			Sealz:Tween(UIScale,ScaleTween,{
+				Scale = 0
+			});
+			
 			BlockSelf.ClearOnOverFrame();
 
 			BlockSelf.Signal:Fire(false);
@@ -3212,21 +3247,21 @@ function Sealz.new(config)
 	local UIShadow = Instance.new("UIShadow")
 
 	local WindowTransparent = Sealz.Transparent();
-	
+
 	-- Save config
 	function winSelf:Save(Delay: boolean)
 		local Data = {
 			time = tick(),
 			data = {},
 		};
-		
+
 		local count = 1;
 		for i,v in next , Sealz.Flags do
 			if Delay then
 				if count % 50 == 1 then
 					task.wait();
 				end;
-				
+
 				count += 1;
 			end;
 
@@ -3244,7 +3279,7 @@ function Sealz.new(config)
 
 		return true;
 	end;
-	
+
 	-- load config from path
 	function winSelf:Load(Path: string)
 		Path = Path or config.Path..'/config.json';
@@ -3263,7 +3298,7 @@ function Sealz.new(config)
 
 		return true
 	end;
-	
+
 	-- Load config from string
 	function winSelf:LoadFromString(JSON: string)
 		local DATA = HttpService:JSONDecode(JSON);
@@ -3462,7 +3497,7 @@ function Sealz.new(config)
 		Sealz:Tween(MainFrame,ScaleTween,{
 			Size = UD;
 		});
-		
+
 		task.delay(0.5,function()
 			winSelf.Menu.EventChange:Fire()
 		end)
@@ -3998,7 +4033,7 @@ function Sealz.Indicator()
 
 	local Indicator = {};
 	local Order = 0;
-	
+
 	Indicator.Root = IndicatorFrame;
 
 	Indicator.new = function(icon: string,name: string,color: Color3 | string)
@@ -4015,14 +4050,14 @@ function Sealz.Indicator()
 		local Icon = Instance.new("TextLabel")
 		local Text = Instance.new("TextLabel")
 		local Padding = Instance.new('Frame')
-		
+
 		Order += 5;
-		
+
 		Padding.LayoutOrder = PadLayout;
 		Padding.BackgroundTransparency = 1;
 		Padding.Size = UDim2.fromOffset(0,0)
 		Padding.Parent = IndicatorFrame
-		
+
 		IndicatorItem.Name = "IndicatorItem"
 		IndicatorItem.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
 		IndicatorItem.BackgroundTransparency = 0.250
@@ -4106,13 +4141,13 @@ function Sealz.Indicator()
 			if IndiItem.delay_thread then
 				pcall(task.cancel,IndiItem.delay_thread);	
 			end;
-			
+
 			local size = Sealz:GetTextSize(Text);
 
 			Sealz:Tween(IndicatorItem,BasedTween,{
 				Size = UDim2.new(0, size.X + 45, 0, 35)
 			});
-			
+
 			Sealz:Tween(Padding,ScaleTween,{
 				Size = UDim2.new(0, 0, 0, 7)
 			})
@@ -4124,15 +4159,15 @@ function Sealz.Indicator()
 			if IndiItem.delay_thread then
 				pcall(task.cancel,IndiItem.delay_thread);	
 			end;
-			
+
 			Sealz:Tween(IndicatorItem,BasedTween,{
 				Size = UDim2.new(0, 0, 0, 35)
 			});
-			
+
 			Sealz:Tween(Padding,ScaleTween,{
 				Size = UDim2.new(0, 0, 0, 0)
 			})
-			
+
 			IndiItem.delay_thread = task.delay(BasedTween.Time / 1.2,function()
 				if IndicatorItem.AbsoluteSize.X < 5 then
 					Sealz:Tween(IndicatorItem,BasedTween,{
@@ -4180,7 +4215,7 @@ function Sealz.Indicator()
 			if IndiItem.Visible == bool then
 				return;
 			end;
-			
+
 			if IndiItem.delay_thread then
 				pcall(task.cancel,IndiItem.delay_thread);	
 			end;
@@ -4216,7 +4251,8 @@ function Sealz.Watermark(Position: string)
 	local TransManager = Sealz.Transparent();
 	local WatermarkSelf = {};
 	local BasedWatermarkLayer = 500;
-
+	local PaddingX,PaddingY = 15 , 30;
+	
 	local WatermarkFrame = Instance.new("Frame")
 	local UICorner = Instance.new("UICorner")
 	local UIShadow = Instance.new("UIShadow")
@@ -4255,7 +4291,7 @@ function Sealz.Watermark(Position: string)
 
 	WatermarkSelf.OnUpdate = UIListLayout:GetPropertyChangedSignal('AbsoluteContentSize'):Connect(function()
 		Sealz:Tween(WatermarkFrame,BasedTween, {
-			Size = UDim2.new(0, UIListLayout.AbsoluteContentSize.X + 10, 0, 20)
+			Size = UDim2.new(0, UIListLayout.AbsoluteContentSize.X + PaddingX, 0, PaddingY)
 		})
 	end);
 
@@ -4310,6 +4346,7 @@ function Sealz.Watermark(Position: string)
 		Block.Size = UDim2.new(0, 0, 0, 15)
 		Block.ZIndex = BasedWatermarkLayer + 1
 		Block.LayoutOrder = Layout
+		Block.ClipsDescendants = true;
 
 		Icon.Name = "Icon"
 		Icon.Parent = Block
@@ -4343,6 +4380,10 @@ function Sealz.Watermark(Position: string)
 		Text.ZIndex = BasedWatermarkLayer + 3
 		Text.TextXAlignment = Enum.TextXAlignment.Left
 		TransManager:Add(Text);
+		
+		Block:GetPropertyChangedSignal('Size'):Connect(function()
+			Block.Visible = (Block.AbsoluteSize.X > 2);
+		end);
 
 		WatermarkItemSelf.Update = function()
 			local size = Sealz:GetTextSize(Text);
@@ -4363,8 +4404,20 @@ function Sealz.Watermark(Position: string)
 			WatermarkItemSelf.Update();
 		end;
 
-		function WatermarkItemSelf:Render(bool: Boolean)
-			Block.Visible = bool;
+		WatermarkItemSelf.Visible = true;
+
+		function WatermarkItemSelf:Render(bool: boolean)
+			local state = WatermarkItemSelf.Visible;
+
+			WatermarkItemSelf.Visible = bool;
+
+			if not bool and state then
+				Sealz:Tween(Block,BasedTween,{
+					Size = UDim2.new(0, 0, 0, 15)
+				});
+			elseif bool and not state then
+				WatermarkItemSelf.Update();
+			end;
 		end;
 
 		WatermarkItemSelf.Update();
